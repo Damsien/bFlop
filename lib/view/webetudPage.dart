@@ -1,39 +1,36 @@
 import 'package:flutter/material.dart';
 
   //Importation du controlleur
-import '../controller/agendaPageCtrl.dart';
+import '../controller/webetudPageCtrl.dart';
 
-  //Importation des pages
-import 'package:bflop/view/webetudPage.dart';
-import 'package:bflop/view/roomPage.dart';
-import 'package:bflop/view/scorePage.dart';
-import 'package:bflop/view/absencePage.dart';
+import '../view/agendaPage.dart';
 
-class AgendaPageMain extends StatelessWidget {
+class WebetudPageMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Agenda',
+      title: 'Webtud',
       debugShowCheckedModeBanner: false,
-      home: new AgendaPage(title: 'Agenda'),
+      home: new WebetudPage(title: 'Webtud'),
     );
   }
 }
 
-class AgendaPage extends StatefulWidget {
+
+class WebetudPage extends StatefulWidget {
   final String title;
   
-  AgendaPage({Key key, this.title}) : super(key: key);
+  WebetudPage({Key key, this.title}) : super(key: key);
 
   @override
-  _AgendaPageState createState() => _AgendaPageState();
+  _WebetudPageState createState() => _WebetudPageState();
 }
 
-class _AgendaPageState extends State<AgendaPage> {
+class _WebetudPageState extends State<WebetudPage> {
   
-    //Controlleurs
-  AgendaPageCtrl ctrl = new AgendaPageCtrl();
+    //Controlleur
+  WebetudPageCtrl ctrl = new WebetudPageCtrl();
 
 
   //INTERFACE
@@ -41,34 +38,15 @@ class _AgendaPageState extends State<AgendaPage> {
     //Theme
   Brightness theme;
 
-  
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      this.updateTheme(true);
-    });
-  }
-
-  void updateTheme(bool val) async {
-    var theme = await ctrl.switchTheme(this.theme, val);
-    setState(() {
-      this.theme = theme;
-    });
-  }
-  
-  void switchTheme() {
-    this.updateTheme(false);
-  }
-
-
   void test() {
-    setState(() {
-    });
+
   }
 
-
-
+  void switchTheme() {
+    setState(() {
+      this.theme = ctrl.switchTheme(this.theme, false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,17 +55,17 @@ class _AgendaPageState extends State<AgendaPage> {
       //UI
 
     return MaterialApp(
-      title: widget.title,
+      title: 'Webetud',
       theme: ThemeData(
         brightness: this.theme,
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.orange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
 
         appBar: AppBar(
-          title: new Text(widget.title),
+          title: new Text('Webetud'),
           //leading: new IconButton(icon: Icon(Icons.menu), onPressed: test),
           actions: <Widget>[
               new IconButton(icon: Icon(Icons.refresh), tooltip: 'Rafraichir', onPressed: test),

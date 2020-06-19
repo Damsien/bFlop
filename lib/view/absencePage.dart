@@ -1,39 +1,39 @@
 import 'package:flutter/material.dart';
 
   //Importation du controlleur
-import '../controller/agendaPageCtrl.dart';
+import '../controller/absencePageCtrl.dart';
 
   //Importation des pages
-import 'package:bflop/view/webetudPage.dart';
-import 'package:bflop/view/roomPage.dart';
-import 'package:bflop/view/scorePage.dart';
-import 'package:bflop/view/absencePage.dart';
+import './agendaPage.dart';
+import './webetudPage.dart';
+import './roomPage.dart';
+import './scorePage.dart';
 
-class AgendaPageMain extends StatelessWidget {
+class AbsencePageMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Agenda',
+      title: 'Absences',
       debugShowCheckedModeBanner: false,
-      home: new AgendaPage(title: 'Agenda'),
+      home: new AbsencePage(title: 'Absences'),
     );
   }
 }
 
-class AgendaPage extends StatefulWidget {
+class AbsencePage extends StatefulWidget {
   final String title;
   
-  AgendaPage({Key key, this.title}) : super(key: key);
+  AbsencePage({Key key, this.title}) : super(key: key);
 
   @override
-  _AgendaPageState createState() => _AgendaPageState();
+  _AbsencePageState createState() => _AbsencePageState();
 }
 
-class _AgendaPageState extends State<AgendaPage> {
+class _AbsencePageState extends State<AbsencePage> {
   
     //Controlleurs
-  AgendaPageCtrl ctrl = new AgendaPageCtrl();
+  AbsencePageCtrl ctrl = new AbsencePageCtrl();
 
 
   //INTERFACE
@@ -41,33 +41,17 @@ class _AgendaPageState extends State<AgendaPage> {
     //Theme
   Brightness theme;
 
-  
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      this.updateTheme(true);
-    });
-  }
-
-  void updateTheme(bool val) async {
-    var theme = await ctrl.switchTheme(this.theme, val);
-    setState(() {
-      this.theme = theme;
-    });
-  }
-  
-  void switchTheme() {
-    this.updateTheme(false);
-  }
-
 
   void test() {
-    setState(() {
-    });
+
   }
 
 
+  void switchTheme() {
+    setState(() {
+      this.theme = ctrl.switchTheme(this.theme, false);
+    });
+  }
 
 
   @override
@@ -80,7 +64,7 @@ class _AgendaPageState extends State<AgendaPage> {
       title: widget.title,
       theme: ThemeData(
         brightness: this.theme,
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.purple,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
