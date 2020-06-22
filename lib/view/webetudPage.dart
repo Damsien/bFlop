@@ -1,27 +1,37 @@
+import 'package:bflop/model/data/webetudData.dart';
 import 'package:flutter/material.dart';
 
   //Importation du controlleur
 import '../controller/webetudPageCtrl.dart';
 
-import '../view/agendaPage.dart';
+  //Importation des données persistents de la page
+import 'package:bflop/model/data/dataSave.dart';
+import 'package:bflop/model/data/webetudData.dart';
 
 class WebetudPageMain extends StatelessWidget {
+
+    //Données générales de la page
+  WebetudData dataSave;
+
+  WebetudPageMain(DataSave dataSave) {
+    this.dataSave = new WebetudData(dataSave.theme);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Webtud',
       debugShowCheckedModeBanner: false,
-      home: new WebetudPage(title: 'Webtud'),
+      home: new WebetudPage(dataPage: dataSave),
     );
   }
 }
 
 
 class WebetudPage extends StatefulWidget {
-  final String title;
+  final WebetudData dataPage;
   
-  WebetudPage({Key key, this.title}) : super(key: key);
+  WebetudPage({Key key, this.dataPage}) : super(key: key);
 
   @override
   _WebetudPageState createState() => _WebetudPageState();
@@ -46,7 +56,7 @@ class _WebetudPageState extends State<WebetudPage> {
   void initState() {
     super.initState();
     setState(() {
-      this.updateTheme(true);
+      this.theme = widget.dataPage.theme;
     });
   }
 
@@ -55,6 +65,7 @@ class _WebetudPageState extends State<WebetudPage> {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
+      widget.dataPage.theme = theme;
     });
   }
 

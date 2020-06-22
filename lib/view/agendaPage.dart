@@ -3,20 +3,18 @@ import 'package:flutter/material.dart';
   //Importation du controlleur
 import '../controller/agendaPageCtrl.dart';
 
-import 'package:bflop/model/dataSave.dart';
+  //Importation des données persistents de la page
+import 'package:bflop/model/data/dataSave.dart';
+import 'package:bflop/model/data/agendaData.dart';
 
-  //Importation des pages
-import 'package:bflop/view/webetudPage.dart';
-import 'package:bflop/view/roomPage.dart';
-import 'package:bflop/view/scorePage.dart';
-import 'package:bflop/view/absencePage.dart';
 
 class AgendaPageMain extends StatelessWidget {
 
-  DataSave dataSave;
+    //Données générales de la page
+  AgendaData dataSave;
 
   AgendaPageMain(DataSave dataSave) {
-    this.dataSave = dataSave;
+    this.dataSave = new AgendaData(dataSave.theme);
   }
 
   @override
@@ -24,15 +22,15 @@ class AgendaPageMain extends StatelessWidget {
     return MaterialApp(
       title: 'Agenda',
       debugShowCheckedModeBanner: false,
-      home: new AgendaPage(dataSave: dataSave),
+      home: new AgendaPage(dataPage: dataSave),
     );
   }
 }
 
 class AgendaPage extends StatefulWidget {
-  final DataSave dataSave;
+  final AgendaData dataPage;
   
-  AgendaPage({Key key, this.dataSave}) : super(key: key);
+  AgendaPage({Key key, this.dataPage}) : super(key: key);
 
   @override
   _AgendaPageState createState() => _AgendaPageState();
@@ -52,12 +50,12 @@ class _AgendaPageState extends State<AgendaPage> {
 
   //METHODS / FUNCTIONS
 
-  //Executed when the app run
+  //Executed when page is loading
   @override
   void initState() {
     super.initState();
     setState(() {
-      this.theme = widget.dataSave.theme;
+      this.theme = widget.dataPage.theme;
       //this.updateTheme(true);
     });
   }
@@ -67,7 +65,7 @@ class _AgendaPageState extends State<AgendaPage> {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
-      widget.dataSave.theme = theme;
+      widget.dataPage.theme = theme;
     });
   }
 
@@ -92,7 +90,7 @@ class _AgendaPageState extends State<AgendaPage> {
       //UI
 
     return MaterialApp(
-      title: widget.dataSave.title,
+      title:"Agenda",
       theme: ThemeData(
         brightness: this.theme,
         primarySwatch: Colors.green,
@@ -102,22 +100,24 @@ class _AgendaPageState extends State<AgendaPage> {
       home: Scaffold(
 
         appBar: AppBar(
-          title: new Text(widget.dataSave.title),
+          title: new Text("Agenda"),
           actions: <Widget>[
               new IconButton(icon: Icon(Icons.refresh), tooltip: 'Rafraichir', onPressed: test),
               new IconButton(icon: Icon(Icons.brightness_4), tooltip: 'Theme', onPressed: switchTheme),
               new IconButton(icon: Icon(Icons.more_vert), tooltip: 'Options', onPressed: test),],
         ),
 
+
+/*
         body: ListView.builder(
           itemCount: 10,
           itemBuilder: (context, index) {
             return ExpansionTile(
-              title: Text(widget.dataSave.title),
+              title: Text(widget.dataPage.title),
               onExpansionChanged: (b) => setState(() {
-                widget.dataSave.listIndex[index] = b;
+                widget.dataPage.listIndex[index] = b;
               }),
-              initiallyExpanded: widget.dataSave.listIndex[index],
+              initiallyExpanded: widget.dataPage.listIndex[index],
               children: <Widget>[
                 Container(
                   color: index % 2 == 0 ? Colors.green : Colors.blue,
@@ -127,7 +127,7 @@ class _AgendaPageState extends State<AgendaPage> {
             );
           }
         ),
-
+*/
 /*
         body: Center(
           child: Column(

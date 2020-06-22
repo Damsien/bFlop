@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:bflop/controller/masterCtrl.dart';
 
   //Importation du systeme persistent
-import 'package:bflop/model/dataSave.dart';
+import 'package:bflop/model/data/dataSave.dart';
 
   //Importation des pages
 import './agendaPage.dart';
@@ -37,6 +37,8 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
 
+  //ATTRIBUTES
+
     //Navigation
   int _selectedIndex = 0;
   AgendaPageMain agendaPage;
@@ -58,19 +60,30 @@ class _BottomNavBarState extends State<BottomNavBar> {
   //final PageStorageBucket bucket = new PageStorageBucket();
 
 
+  //METHODS / FUNCTIONS
+
+
+  //Executed on runtime
+  @override
+  void initState() {
+    this.initPage();
+    super.initState();
+  }
+
+  //Initialize pages
   void initPage() async {
     var theme = await ctrl.switchTheme(this.theme, true);
     setState(() {
       this.theme = theme;
-      List<bool> list = [false, false, false, false, false, false, false, false, false, false];
-      DataSave dataSave = new DataSave("Agenda", this.theme, list);
+
+
+      DataSave dataSave = new DataSave(this.theme);
+
       this.agendaPage = new AgendaPageMain(dataSave);
-
-
-      this.webetudPage = new WebetudPageMain();
-      this.roomPage = new RoomPageMain();
-      this.scorePage = new ScorePageMain();
-      this.absencePage = new AbsencePageMain();
+      this.webetudPage = new WebetudPageMain(dataSave);
+      this.roomPage = new RoomPageMain(dataSave);
+      this.scorePage = new ScorePageMain(dataSave);
+      this.absencePage = new AbsencePageMain(dataSave);
 
       _onItemTapped(0);
 
@@ -79,6 +92,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
     });
   }
 
+  //Switch between pages
   void _onItemTapped(int index) async {
     var theme = await ctrl.switchTheme(this.theme, true);
     setState(() {
@@ -95,11 +109,15 @@ class _BottomNavBarState extends State<BottomNavBar> {
     });
   }
 
-
-  @override
-  void initState() {
-    this.initPage();
-    super.initState();
+  //Update theme of all of pages
+  void updateAllThemes(Brightness theme) {
+    setState(() {
+      this.agendaPage.dataSave.theme = theme;
+      this.webetudPage.dataSave.theme = theme;
+      this.roomPage.dataSave.theme = theme;
+      this.scorePage.dataSave.theme = theme;
+      this.absencePage.dataSave.theme = theme;
+    });
   }
 
 

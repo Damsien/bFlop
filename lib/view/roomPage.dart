@@ -3,28 +3,33 @@ import 'package:flutter/material.dart';
   //Importation du controlleur
 import '../controller/roomPageCtrl.dart';
 
-  //Importation des pages
-import './agendaPage.dart';
-import './webetudPage.dart';
-import './scorePage.dart';
-import './absencePage.dart';
+  //Importation des données persistents de la page
+import 'package:bflop/model/data/dataSave.dart';
+import 'package:bflop/model/data/roomData.dart';
 
 class RoomPageMain extends StatelessWidget {
+
+    //Données générales de la page
+  RoomData dataSave;
+
+  RoomPageMain(DataSave dataSave) {
+    this.dataSave = new RoomData(dataSave.theme);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Salles libres',
       debugShowCheckedModeBanner: false,
-      home: new RoomPage(title: 'Salles libres'),
+      home: new RoomPage(dataPage: dataSave),
     );
   }
 }
 
 class RoomPage extends StatefulWidget {
-  final String title;
+  final RoomData dataPage;
   
-  RoomPage({Key key, this.title}) : super(key: key);
+  RoomPage({Key key, this.dataPage}) : super(key: key);
 
   @override
   _RoomPageState createState() => _RoomPageState();
@@ -49,7 +54,7 @@ class _RoomPageState extends State<RoomPage> {
   void initState() {
     super.initState();
     setState(() {
-      this.updateTheme(true);
+      this.theme = widget.dataPage.theme;
     });
   }
 
@@ -58,6 +63,7 @@ class _RoomPageState extends State<RoomPage> {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
+      widget.dataPage.theme = theme;
     });
   }
 
@@ -78,7 +84,7 @@ class _RoomPageState extends State<RoomPage> {
       //UI
 
     return MaterialApp(
-      title: widget.title,
+      title: "Salles libres",
       theme: ThemeData(
         brightness: this.theme,
         primarySwatch: Colors.pink,
@@ -88,7 +94,7 @@ class _RoomPageState extends State<RoomPage> {
       home: Scaffold(
 
         appBar: AppBar(
-          title: new Text(widget.title),
+          title: new Text("Salles libres"),
           //leading: new IconButton(icon: Icon(Icons.menu), onPressed: test),
           actions: <Widget>[
               new IconButton(icon: Icon(Icons.refresh), tooltip: 'Rafraichir', onPressed: test),

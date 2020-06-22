@@ -3,28 +3,33 @@ import 'package:flutter/material.dart';
   //Importation du controlleur
 import '../controller/absencePageCtrl.dart';
 
-  //Importation des pages
-import './agendaPage.dart';
-import './webetudPage.dart';
-import './roomPage.dart';
-import './scorePage.dart';
+  //Importation des données persistents de la page
+import 'package:bflop/model/data/dataSave.dart';
+import 'package:bflop/model/data/absenceData.dart';
 
 class AbsencePageMain extends StatelessWidget {
+
+    //Données générales de la page
+  AbsenceData dataSave;
+
+  AbsencePageMain(DataSave dataSave) {
+    this.dataSave = new AbsenceData(dataSave.theme);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Absences',
       debugShowCheckedModeBanner: false,
-      home: new AbsencePage(title: 'Absences'),
+      home: new AbsencePage(dataPage: dataSave),
     );
   }
 }
 
 class AbsencePage extends StatefulWidget {
-  final String title;
+  final AbsenceData dataPage;
   
-  AbsencePage({Key key, this.title}) : super(key: key);
+  AbsencePage({Key key, this.dataPage}) : super(key: key);
 
   @override
   _AbsencePageState createState() => _AbsencePageState();
@@ -49,7 +54,7 @@ class _AbsencePageState extends State<AbsencePage> {
   void initState() {
     super.initState();
     setState(() {
-      this.updateTheme(true);
+      this.theme = widget.dataPage.theme;
     });
   }
 
@@ -58,6 +63,7 @@ class _AbsencePageState extends State<AbsencePage> {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
+      widget.dataPage.theme = theme;
     });
   }
 
@@ -78,7 +84,7 @@ class _AbsencePageState extends State<AbsencePage> {
       //UI
 
     return MaterialApp(
-      title: widget.title,
+      title: "Absences",
       theme: ThemeData(
         brightness: this.theme,
         primarySwatch: Colors.purple,
@@ -88,7 +94,7 @@ class _AbsencePageState extends State<AbsencePage> {
       home: Scaffold(
 
         appBar: AppBar(
-          title: new Text(widget.title),
+          title: new Text("Absences"),
           //leading: new IconButton(icon: Icon(Icons.menu), onPressed: test),
           actions: <Widget>[
               new IconButton(icon: Icon(Icons.refresh), tooltip: 'Rafraichir', onPressed: test),

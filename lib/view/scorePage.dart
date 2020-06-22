@@ -3,28 +3,33 @@ import 'package:flutter/material.dart';
   //Importation du controlleur
 import '../controller/scorePageCtrl.dart';
 
-  //Importation des pages
-import './agendaPage.dart';
-import './webetudPage.dart';
-import './roomPage.dart';
-import './absencePage.dart';
+  //Importation des données persistents de la page
+import 'package:bflop/model/data/dataSave.dart';
+import 'package:bflop/model/data/scoreData.dart';
 
 class ScorePageMain extends StatelessWidget {
+
+    //Données générales de la page
+  ScoreData dataSave;
+
+  ScorePageMain(DataSave dataSave) {
+    this.dataSave = new ScoreData(dataSave.theme);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Notes',
       debugShowCheckedModeBanner: false,
-      home: new ScorePage(title: 'Notes'),
+      home: new ScorePage(dataPage: dataSave),
     );
   }
 }
 
 class ScorePage extends StatefulWidget {
-  final String title;
+  final ScoreData dataPage;
   
-  ScorePage({Key key, this.title}) : super(key: key);
+  ScorePage({Key key, this.dataPage}) : super(key: key);
 
   @override
   _ScorePageState createState() => _ScorePageState();
@@ -49,7 +54,7 @@ class _ScorePageState extends State<ScorePage> {
   void initState() {
     super.initState();
     setState(() {
-      this.updateTheme(true);
+      this.theme = widget.dataPage.theme;
     });
   }
 
@@ -58,6 +63,7 @@ class _ScorePageState extends State<ScorePage> {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
+      widget.dataPage.theme = theme;
     });
   }
 
@@ -78,7 +84,7 @@ class _ScorePageState extends State<ScorePage> {
       //UI
 
     return MaterialApp(
-      title: widget.title,
+      title: "Notes",
       theme: ThemeData(
         brightness: this.theme,
         primarySwatch: Colors.blue,
@@ -88,7 +94,7 @@ class _ScorePageState extends State<ScorePage> {
       home: Scaffold(
 
         appBar: AppBar(
-          title: new Text(widget.title),
+          title: new Text("Notes"),
           //leading: new IconButton(icon: Icon(Icons.menu), onPressed: test),
           actions: <Widget>[
               new IconButton(icon: Icon(Icons.refresh), tooltip: 'Rafraichir', onPressed: test),
