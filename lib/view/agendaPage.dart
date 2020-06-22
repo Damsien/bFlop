@@ -76,6 +76,11 @@ class _AgendaPageState extends State<AgendaPage> {
     this.updateTheme(false);
   }
 
+  //Calendar informations
+  void updateAgenda() async {
+    this.ctrl.fetchTest();
+  }
+
   //Test function
   void test() {
     setState(() {
@@ -104,7 +109,7 @@ class _AgendaPageState extends State<AgendaPage> {
         appBar: AppBar(
           title: new Text("Agenda"),
           actions: <Widget>[
-              new IconButton(icon: Icon(Icons.refresh), tooltip: 'Rafraichir', onPressed: test),
+              new IconButton(icon: Icon(Icons.refresh), tooltip: 'Rafraichir', onPressed: updateAgenda),
               new IconButton(icon: Icon(Icons.brightness_4), tooltip: 'Theme', onPressed: switchTheme),
               new IconButton(icon: Icon(Icons.more_vert), tooltip: 'Options', onPressed: test),],
         ),
