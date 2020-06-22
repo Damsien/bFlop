@@ -6,7 +6,7 @@ class AbsenceData extends DataSave {
 
   Brightness theme;
 
-    AbsenceData(Brightness theme) : super(theme) {
+    AbsenceData(Brightness theme) : super.theme(theme) {
       
     }
 

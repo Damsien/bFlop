@@ -6,7 +6,7 @@ class ScoreData extends DataSave {
 
   Brightness theme;
 
-    ScoreData(Brightness theme) : super(theme) {
+    ScoreData(Brightness theme) : super.theme(theme) {
       
     }
 

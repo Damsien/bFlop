@@ -6,7 +6,7 @@ class AgendaData extends DataSave {
 
   Brightness theme;
 
-    AgendaData(Brightness theme) : super(theme) {
+    AgendaData(Brightness theme) : super.theme(theme) {
       
     }
 

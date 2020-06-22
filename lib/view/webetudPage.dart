@@ -7,14 +7,15 @@ import '../controller/webetudPageCtrl.dart';
   //Importation des données persistents de la page
 import 'package:bflop/model/data/dataSave.dart';
 import 'package:bflop/model/data/webetudData.dart';
+import 'package:bflop/view/bottomNavBar.dart';
 
 class WebetudPageMain extends StatelessWidget {
 
-    //Données générales de la page
-  WebetudData dataSave;
+    //Données générales de la page + accès au reste
+  BottomNavBar bottom;
 
-  WebetudPageMain(DataSave dataSave) {
-    this.dataSave = new WebetudData(dataSave.theme);
+  WebetudPageMain(BottomNavBar bot) {
+    this.bottom = bot;
   }
 
   @override
@@ -22,16 +23,16 @@ class WebetudPageMain extends StatelessWidget {
     return MaterialApp(
       title: 'Webtud',
       debugShowCheckedModeBanner: false,
-      home: new WebetudPage(dataPage: dataSave),
+      home: new WebetudPage(bottom: bottom),
     );
   }
 }
 
 
 class WebetudPage extends StatefulWidget {
-  final WebetudData dataPage;
+  final BottomNavBar bottom;
   
-  WebetudPage({Key key, this.dataPage}) : super(key: key);
+  WebetudPage({Key key, this.bottom}) : super(key: key);
 
   @override
   _WebetudPageState createState() => _WebetudPageState();
@@ -56,7 +57,7 @@ class _WebetudPageState extends State<WebetudPage> {
   void initState() {
     super.initState();
     setState(() {
-      this.theme = widget.dataPage.theme;
+      this.theme = widget.bottom.dataPage.theme;
     });
   }
 
@@ -65,8 +66,8 @@ class _WebetudPageState extends State<WebetudPage> {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
-      widget.dataPage.theme = theme;
     });
+      widget.bottom.updateAllThemes(theme);
   }
 
   //Switch theme between light and dark

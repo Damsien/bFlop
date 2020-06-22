@@ -6,7 +6,7 @@ class RoomData extends DataSave {
 
   Brightness theme;
 
-    RoomData(Brightness theme) : super(theme) {
+    RoomData(Brightness theme) : super.theme(theme) {
       
     }
 

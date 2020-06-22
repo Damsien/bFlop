@@ -6,14 +6,15 @@ import '../controller/scorePageCtrl.dart';
   //Importation des données persistents de la page
 import 'package:bflop/model/data/dataSave.dart';
 import 'package:bflop/model/data/scoreData.dart';
+import 'package:bflop/view/bottomNavBar.dart';
 
 class ScorePageMain extends StatelessWidget {
 
-    //Données générales de la page
-  ScoreData dataSave;
+    //Données générales de la page + accès au reste
+  BottomNavBar bottom;
 
-  ScorePageMain(DataSave dataSave) {
-    this.dataSave = new ScoreData(dataSave.theme);
+  ScorePageMain(BottomNavBar bot) {
+    this.bottom = bot;
   }
 
   @override
@@ -21,15 +22,15 @@ class ScorePageMain extends StatelessWidget {
     return MaterialApp(
       title: 'Notes',
       debugShowCheckedModeBanner: false,
-      home: new ScorePage(dataPage: dataSave),
+      home: new ScorePage(bottom: bottom),
     );
   }
 }
 
 class ScorePage extends StatefulWidget {
-  final ScoreData dataPage;
+  final BottomNavBar bottom;
   
-  ScorePage({Key key, this.dataPage}) : super(key: key);
+  ScorePage({Key key, this.bottom}) : super(key: key);
 
   @override
   _ScorePageState createState() => _ScorePageState();
@@ -54,7 +55,7 @@ class _ScorePageState extends State<ScorePage> {
   void initState() {
     super.initState();
     setState(() {
-      this.theme = widget.dataPage.theme;
+      this.theme = widget.bottom.dataPage.theme;
     });
   }
 
@@ -63,8 +64,8 @@ class _ScorePageState extends State<ScorePage> {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
-      widget.dataPage.theme = theme;
     });
+      widget.bottom.updateAllThemes(theme);
   }
 
   //Switch theme between light and dark

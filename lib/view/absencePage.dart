@@ -6,14 +6,15 @@ import '../controller/absencePageCtrl.dart';
   //Importation des données persistents de la page
 import 'package:bflop/model/data/dataSave.dart';
 import 'package:bflop/model/data/absenceData.dart';
+import 'package:bflop/view/bottomNavBar.dart';
 
 class AbsencePageMain extends StatelessWidget {
 
-    //Données générales de la page
-  AbsenceData dataSave;
+    //Données générales de la page + accès au reste
+  BottomNavBar bottom;
 
-  AbsencePageMain(DataSave dataSave) {
-    this.dataSave = new AbsenceData(dataSave.theme);
+  AbsencePageMain(BottomNavBar bot) {
+    this.bottom = bot;
   }
 
   @override
@@ -21,15 +22,15 @@ class AbsencePageMain extends StatelessWidget {
     return MaterialApp(
       title: 'Absences',
       debugShowCheckedModeBanner: false,
-      home: new AbsencePage(dataPage: dataSave),
+      home: new AbsencePage(bottom: bottom),
     );
   }
 }
 
 class AbsencePage extends StatefulWidget {
-  final AbsenceData dataPage;
+  final BottomNavBar bottom;
   
-  AbsencePage({Key key, this.dataPage}) : super(key: key);
+  AbsencePage({Key key, this.bottom}) : super(key: key);
 
   @override
   _AbsencePageState createState() => _AbsencePageState();
@@ -54,7 +55,7 @@ class _AbsencePageState extends State<AbsencePage> {
   void initState() {
     super.initState();
     setState(() {
-      this.theme = widget.dataPage.theme;
+      this.theme = widget.bottom.dataPage.theme;
     });
   }
 
@@ -63,8 +64,8 @@ class _AbsencePageState extends State<AbsencePage> {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
-      widget.dataPage.theme = theme;
     });
+      widget.bottom.updateAllThemes(theme);
   }
 
   //Switch theme between light and dark

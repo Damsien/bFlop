@@ -6,15 +6,16 @@ import '../controller/agendaPageCtrl.dart';
   //Importation des données persistents de la page
 import 'package:bflop/model/data/dataSave.dart';
 import 'package:bflop/model/data/agendaData.dart';
+import 'package:bflop/view/bottomNavBar.dart';
 
 
 class AgendaPageMain extends StatelessWidget {
 
-    //Données générales de la page
-  AgendaData dataSave;
+    //Données générales de la page + accès au reste
+  BottomNavBar bottom;
 
-  AgendaPageMain(DataSave dataSave) {
-    this.dataSave = new AgendaData(dataSave.theme);
+  AgendaPageMain(BottomNavBar bot) {
+    this.bottom = bot;
   }
 
   @override
@@ -22,15 +23,15 @@ class AgendaPageMain extends StatelessWidget {
     return MaterialApp(
       title: 'Agenda',
       debugShowCheckedModeBanner: false,
-      home: new AgendaPage(dataPage: dataSave),
+      home: new AgendaPage(bottom: bottom),
     );
   }
 }
 
 class AgendaPage extends StatefulWidget {
-  final AgendaData dataPage;
+  final BottomNavBar bottom;
   
-  AgendaPage({Key key, this.dataPage}) : super(key: key);
+  AgendaPage({Key key, this.bottom}) : super(key: key);
 
   @override
   _AgendaPageState createState() => _AgendaPageState();
@@ -47,6 +48,7 @@ class _AgendaPageState extends State<AgendaPage> {
     //Theme
   Brightness theme;
 
+  //AgendaData agendaData = new AgendaData(widget.bottom.dataPage.theme);
 
   //METHODS / FUNCTIONS
 
@@ -55,7 +57,7 @@ class _AgendaPageState extends State<AgendaPage> {
   void initState() {
     super.initState();
     setState(() {
-      this.theme = widget.dataPage.theme;
+      this.theme = widget.bottom.dataPage.theme;
       //this.updateTheme(true);
     });
   }
@@ -65,8 +67,8 @@ class _AgendaPageState extends State<AgendaPage> {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
-      widget.dataPage.theme = theme;
     });
+      widget.bottom.updateAllThemes(theme);
   }
 
   //Switch theme between light and dark

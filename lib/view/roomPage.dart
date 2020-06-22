@@ -6,14 +6,15 @@ import '../controller/roomPageCtrl.dart';
   //Importation des données persistents de la page
 import 'package:bflop/model/data/dataSave.dart';
 import 'package:bflop/model/data/roomData.dart';
+import 'package:bflop/view/bottomNavBar.dart';
 
 class RoomPageMain extends StatelessWidget {
 
-    //Données générales de la page
-  RoomData dataSave;
+    //Données générales de la page + accès au reste
+  BottomNavBar bottom;
 
-  RoomPageMain(DataSave dataSave) {
-    this.dataSave = new RoomData(dataSave.theme);
+  RoomPageMain(BottomNavBar bot) {
+    this.bottom = bot;
   }
 
   @override
@@ -21,15 +22,15 @@ class RoomPageMain extends StatelessWidget {
     return MaterialApp(
       title: 'Salles libres',
       debugShowCheckedModeBanner: false,
-      home: new RoomPage(dataPage: dataSave),
+      home: new RoomPage(bottom: bottom),
     );
   }
 }
 
 class RoomPage extends StatefulWidget {
-  final RoomData dataPage;
+  final BottomNavBar bottom;
   
-  RoomPage({Key key, this.dataPage}) : super(key: key);
+  RoomPage({Key key, this.bottom}) : super(key: key);
 
   @override
   _RoomPageState createState() => _RoomPageState();
@@ -54,7 +55,7 @@ class _RoomPageState extends State<RoomPage> {
   void initState() {
     super.initState();
     setState(() {
-      this.theme = widget.dataPage.theme;
+      this.theme = widget.bottom.dataPage.theme;
     });
   }
 
@@ -63,8 +64,8 @@ class _RoomPageState extends State<RoomPage> {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
-      widget.dataPage.theme = theme;
     });
+      widget.bottom.updateAllThemes(theme);
   }
 
   //Switch theme between light and dark

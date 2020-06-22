@@ -6,7 +6,7 @@ class WebetudData extends DataSave {
 
   Brightness theme;
 
-    WebetudData(Brightness theme) : super(theme) {
+    WebetudData(Brightness theme) : super.theme(theme) {
       
     }
 

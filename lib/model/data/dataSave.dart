@@ -6,8 +6,11 @@ class DataSave {
 
   Brightness theme;
 
+    DataSave.single() {
+      
+    }
 
-    DataSave(Brightness theme) {
+    DataSave.theme(Brightness theme) {
       this.theme = theme;
     }
 

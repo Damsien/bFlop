@@ -20,22 +20,22 @@ class BottomNavBarMain extends StatelessWidget {
     return MaterialApp(
       title: 'Agenda',
       debugShowCheckedModeBanner: false,
-      home: new BottomNavBar(title: 'Agenda'),  //Ouverture de la page agenda lors de l'ouverture de l'app
+      home: new _BottomNavBar(title: 'Agenda'),  //Ouverture de la page agenda lors de l'ouverture de l'app
     );
   }
 }
 
-class BottomNavBar extends StatefulWidget {
+class _BottomNavBar extends StatefulWidget {
 
   final String title;
   
-  BottomNavBar({Key key, this.title}) : super(key: key);
+  _BottomNavBar({Key key, this.title}) : super(key: key);
 
   @override
-  _BottomNavBarState createState() => _BottomNavBarState();
+  BottomNavBar createState() => BottomNavBar();
 }
 
-class _BottomNavBarState extends State<BottomNavBar> {
+class BottomNavBar extends State<_BottomNavBar> {
 
   //ATTRIBUTES
 
@@ -48,6 +48,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   AbsencePageMain absencePage;
   List<Widget> pages;
   Widget currentPage;
+  DataSave dataPage = new DataSave.single();
 
     //Controller
   MasterCtrl ctrl = new MasterCtrl();
@@ -75,28 +76,6 @@ class _BottomNavBarState extends State<BottomNavBar> {
     var theme = await ctrl.switchTheme(this.theme, true);
     setState(() {
       this.theme = theme;
-
-
-      DataSave dataSave = new DataSave(this.theme);
-
-      this.agendaPage = new AgendaPageMain(dataSave);
-      this.webetudPage = new WebetudPageMain(dataSave);
-      this.roomPage = new RoomPageMain(dataSave);
-      this.scorePage = new ScorePageMain(dataSave);
-      this.absencePage = new AbsencePageMain(dataSave);
-
-      _onItemTapped(0);
-
-      currentPage = this.agendaPage;
-      pages = [this.agendaPage, this.webetudPage, this.roomPage, this.scorePage, this.absencePage];
-    });
-  }
-
-  //Switch between pages
-  void _onItemTapped(int index) async {
-    var theme = await ctrl.switchTheme(this.theme, true);
-    setState(() {
-      this.theme = theme;
       if(theme == Brightness.dark) {
         for(int i=0; i<this.colorsTheme.length; i++)
           this.colorsTheme[i] = Colors.black;
@@ -104,6 +83,24 @@ class _BottomNavBarState extends State<BottomNavBar> {
         this.colorsTheme = [Colors.green, Colors.orange, Colors.pink, Colors.blue, Colors.purple];
       }
 
+
+      this.dataPage.theme = this.theme;
+
+      this.agendaPage = new AgendaPageMain(this);
+      this.webetudPage = new WebetudPageMain(this);
+      this.roomPage = new RoomPageMain(this);
+      this.scorePage = new ScorePageMain(this);
+      this.absencePage = new AbsencePageMain(this);
+
+      currentPage = this.agendaPage;
+      pages = [this.agendaPage, this.webetudPage, this.roomPage, this.scorePage, this.absencePage];
+      _onItemTapped(0);
+    });
+  }
+
+  //Switch between pages
+  void _onItemTapped(int index) {
+    setState(() {
       _selectedIndex = index;
       currentPage = pages[index];
     });
@@ -112,11 +109,18 @@ class _BottomNavBarState extends State<BottomNavBar> {
   //Update theme of all of pages
   void updateAllThemes(Brightness theme) {
     setState(() {
-      this.agendaPage.dataSave.theme = theme;
-      this.webetudPage.dataSave.theme = theme;
-      this.roomPage.dataSave.theme = theme;
-      this.scorePage.dataSave.theme = theme;
-      this.absencePage.dataSave.theme = theme;
+      this.dataPage.theme = theme;
+      this.agendaPage.bottom.dataPage.theme = theme;
+      this.webetudPage.bottom.dataPage.theme = theme;
+      this.roomPage.bottom.dataPage.theme = theme;
+      this.scorePage.bottom.dataPage.theme = theme;
+      this.absencePage.bottom.dataPage.theme = theme;
+      if(theme == Brightness.dark) {
+        for(int i=0; i<this.colorsTheme.length; i++)
+          this.colorsTheme[i] = Colors.black;
+      } else {
+        this.colorsTheme = [Colors.green, Colors.orange, Colors.pink, Colors.blue, Colors.purple];
+      }
     });
   }
 
