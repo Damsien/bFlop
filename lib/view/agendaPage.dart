@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
   //Importation du controlleur
 import '../controller/agendaPageCtrl.dart';
 
+import 'package:bflop/model/dataSave.dart';
+
   //Importation des pages
 import 'package:bflop/view/webetudPage.dart';
 import 'package:bflop/view/roomPage.dart';
@@ -11,20 +13,26 @@ import 'package:bflop/view/absencePage.dart';
 
 class AgendaPageMain extends StatelessWidget {
 
+  DataSave dataSave;
+
+  AgendaPageMain(DataSave dataSave) {
+    this.dataSave = dataSave;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Agenda',
       debugShowCheckedModeBanner: false,
-      home: new AgendaPage(title: 'Agenda'),
+      home: new AgendaPage(dataSave: dataSave),
     );
   }
 }
 
 class AgendaPage extends StatefulWidget {
-  final String title;
+  final DataSave dataSave;
   
-  AgendaPage({Key key, this.title}) : super(key: key);
+  AgendaPage({Key key, this.dataSave}) : super(key: key);
 
   @override
   _AgendaPageState createState() => _AgendaPageState();
@@ -32,36 +40,43 @@ class AgendaPage extends StatefulWidget {
 
 class _AgendaPageState extends State<AgendaPage> {
   
-    //Controlleurs
+  //ATTRIBUTES
+
+    //Controllers
   AgendaPageCtrl ctrl = new AgendaPageCtrl();
 
-
-  //INTERFACE
-
+  //Interface
     //Theme
   Brightness theme;
 
-  
+
+  //METHODS / FUNCTIONS
+
+  //Executed when the app run
   @override
   void initState() {
     super.initState();
     setState(() {
-      this.updateTheme(true);
+      this.theme = widget.dataSave.theme;
+      //this.updateTheme(true);
     });
   }
 
+  //Set the state of the new theme
   void updateTheme(bool val) async {
     var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
       this.theme = theme;
+      widget.dataSave.theme = theme;
     });
   }
-  
+
+  //Switch theme between light and dark
   void switchTheme() {
     this.updateTheme(false);
   }
 
-
+  //Test function
   void test() {
     setState(() {
     });
@@ -77,7 +92,7 @@ class _AgendaPageState extends State<AgendaPage> {
       //UI
 
     return MaterialApp(
-      title: widget.title,
+      title: widget.dataSave.title,
       theme: ThemeData(
         brightness: this.theme,
         primarySwatch: Colors.green,
@@ -87,13 +102,32 @@ class _AgendaPageState extends State<AgendaPage> {
       home: Scaffold(
 
         appBar: AppBar(
-          title: new Text(widget.title),
-          //leading: new IconButton(icon: Icon(Icons.menu), onPressed: test),
+          title: new Text(widget.dataSave.title),
           actions: <Widget>[
               new IconButton(icon: Icon(Icons.refresh), tooltip: 'Rafraichir', onPressed: test),
               new IconButton(icon: Icon(Icons.brightness_4), tooltip: 'Theme', onPressed: switchTheme),
               new IconButton(icon: Icon(Icons.more_vert), tooltip: 'Options', onPressed: test),],
         ),
+
+        body: ListView.builder(
+          itemCount: 10,
+          itemBuilder: (context, index) {
+            return ExpansionTile(
+              title: Text(widget.dataSave.title),
+              onExpansionChanged: (b) => setState(() {
+                widget.dataSave.listIndex[index] = b;
+              }),
+              initiallyExpanded: widget.dataSave.listIndex[index],
+              children: <Widget>[
+                Container(
+                  color: index % 2 == 0 ? Colors.green : Colors.blue,
+                  height: 100.0,
+                )
+              ],
+            );
+          }
+        ),
+
 /*
         body: Center(
           child: Column(
@@ -103,7 +137,8 @@ class _AgendaPageState extends State<AgendaPage> {
                 'You have pushed the button this many times:',
               ),
               Text(
-                '$_counter',
+                'oui',
+                //'$_counter',
                 style: Theme.of(context).textTheme.headline4,
               ),
             ],
@@ -111,7 +146,7 @@ class _AgendaPageState extends State<AgendaPage> {
         ),
 
         floatingActionButton: FloatingActionButton(
-          onPressed: _incrementCounter,
+          //onPressed: _incrementCounter,
           tooltip: 'Increment',
           child: Icon(Icons.add),
         ),

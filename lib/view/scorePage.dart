@@ -32,25 +32,42 @@ class ScorePage extends StatefulWidget {
 
 class _ScorePageState extends State<ScorePage> {
   
+  //ATTRIBUTES
+
     //Controlleurs
   ScorePageCtrl ctrl = new ScorePageCtrl();
 
-
-  //INTERFACE
-
+  //Interface
     //Theme
   Brightness theme;
 
 
-  void test() {
+  //METHODS / FUNCTIONS
 
+  //Executed when the app run
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      this.updateTheme(true);
+    });
   }
 
-
-  void switchTheme() {
+  //Set the state of the new theme
+  void updateTheme(bool val) async {
+    var theme = await ctrl.switchTheme(this.theme, val);
     setState(() {
-      this.theme = ctrl.switchTheme(this.theme, false);
+      this.theme = theme;
     });
+  }
+
+  //Switch theme between light and dark
+  void switchTheme() {
+    this.updateTheme(false);
+  }
+
+  //Test function
+  void test() {
   }
 
 
