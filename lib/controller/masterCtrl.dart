@@ -16,7 +16,8 @@ class MasterCtrl {
   switchTheme(Brightness theme, bool isStart) async {
     if(isStart) {
       bool res = await this.masterModel.getValue('darkTheme');
-      if(res) return Brightness.dark;
+      if(res == null) return Brightness.light;
+      else if(res) return Brightness.dark;
       else return Brightness.light;
     } else {
       if(theme == Brightness.dark) {
