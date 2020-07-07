@@ -21,35 +21,75 @@ class AgendaPageCtrl extends MasterCtrl {
 
 
   //CONSTRUCTOR
-  AgendaPageCtrl() {
-
-  }
+  AgendaPageCtrl() {}
 
 
   //METHODS / FUNCTIONS
 
   //GET DATA
 
-  getAll(bool isRunTime, String url) async {
+  //Get all of teachers, groups and agenda of the selected one
+  getAll(bool isRunTime) async {
     if(!this.inUse) {
       this.inUse = true;
+      String url;
       bool log = await this.agendaPageMod.getReloadLog();
+      var pickers = await getPickersList();
       var agenda;
       var teachersGroups;
+      List<String> finalTeachersGroups;
       if(isRunTime) {
-        agenda = await getAgenda(log, url);
         teachersGroups = await getTeachGroups(log);
+        await new Future.delayed(const Duration(seconds : 10));
+        url = getUrl(pickers, teachersGroups);
+        agenda = await getAgenda(log, url);
       } else {
-        agenda = await getAgenda(true, url);
         teachersGroups = await getTeachGroups(true);
+        url = getUrl(pickers, teachersGroups);
+        agenda = await getAgenda(true, url);
       }
       this.inUse = false;
-      return [agenda, teachersGroups[0], teachersGroups[1]];
+      if(pickers[1] == "Elève") finalTeachersGroups = getAllPickers(teachersGroups[0], pickers);
+      else finalTeachersGroups = getAllPickers(teachersGroups[1], pickers);
+      return [agenda, finalTeachersGroups, pickers];
     } else {
       return null;
     }
   }
 
+  //Get the agenda's url of the selected group/teacher
+  getUrl(var pickers, var teachersGroups) {
+    String url;
+    int type;
+    if(pickers[1] == "Elève") type = 0;
+    else type = 1;
+    switch (pickers[0]) {
+      case "Info": url =  urlFor(type, 0, teachersGroups, pickers[2]); break;
+      case "RT": url = urlFor(type, 1, teachersGroups, pickers[2]); break;
+      case "GIM": url = urlFor(type, 2, teachersGroups, pickers[2]); break;
+      case "CS": url = urlFor(type, 3, teachersGroups, pickers[2]); break;
+    }
+    return url;
+  }
+  //Url loop fetcher
+  urlFor(int teachStud, int promo, var teachersGroups, String picker) {
+    //print(teachStud.toString() + "   " + picker + "   " + promo.toString() + "   " + teachersGroups.toString());
+    if(teachStud == 1) {
+      for(int i=0; i<teachersGroups[teachStud][promo].length; i++) {
+        if(picker == quoteToString(teachersGroups[teachStud][promo][i][0]))
+          return quoteToString(teachersGroups[teachStud][promo][i][3]);
+      }
+    } else {
+      for(int i=0; i<teachersGroups[teachStud][promo].length; i++) {
+        if(picker == quoteToString(teachersGroups[teachStud][promo][i][0]) + "-" + 
+        quoteToString(teachersGroups[teachStud][promo][i][1])) {
+          return quoteToString(teachersGroups[teachStud][promo][i][2]);
+        }
+      }
+    }
+  }
+
+  //Get agenda
   getAgenda(bool log, String url) async {
     if(log) {
       var unAgenda = await fetchAgenda(url);
@@ -61,6 +101,7 @@ class AgendaPageCtrl extends MasterCtrl {
     }
   }
 
+  //Get teacher and group list
   getTeachGroups(bool log) async {
     if(log) {
       fetchGroupTeach();
@@ -73,6 +114,7 @@ class AgendaPageCtrl extends MasterCtrl {
 
   //AGENDA DATA REORGANIZATION
 
+  //Clear agenda and fetch all of courses
   cleanAgendaData(var json) {
 
     int firstWeek = getFirstWeek(getMonday(new DateTime.now()));
@@ -92,20 +134,29 @@ class AgendaPageCtrl extends MasterCtrl {
           int.parse(json[j][1].split("")[11].toString()+json[j][1].split("")[12].toString()),
         );
 
-        if(getFirstWeek(getMonday(timeSplit)) == firstWeek-1) {
-          this.agData.agList[0][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'"';
-        }
+        if(getFirstWeek(getMonday(timeSplit)) == firstWeek-4) {
+          if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7){
+            print(colorUpdate(json[j+5][1]).toString());
+            this.agData.agList[0][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
+            +colorUpdate(json[j+5][1]).toString()+'\\\\n'+getNote(timeSplit)+'"';
+        }}
         
         else if(getFirstWeek(getMonday(timeSplit)) == firstWeek+1) {
-          this.agData.agList[1][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'"';
+          if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7)
+            this.agData.agList[1][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
+            +colorUpdate(json[j+5][1])+getNote(timeSplit)+'"';
         }
         
         else if(getFirstWeek(getMonday(timeSplit)) == firstWeek+2) {
-          this.agData.agList[2][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'"';
+          if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7)
+            this.agData.agList[2][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
+            +colorUpdate(json[j+5][1])+getNote(timeSplit)+'"';
         }
       
         else if(getFirstWeek(getMonday(timeSplit)) == firstWeek+3) {
-          this.agData.agList[3][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'"';
+          if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7)
+            this.agData.agList[3][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
+            +colorUpdate(json[j+5][1])+getNote(timeSplit)+'"';
         }
 
       }
@@ -114,6 +165,113 @@ class AgendaPageCtrl extends MasterCtrl {
     
   }
 
+  //Fetch colors of courses
+  String colorUpdate(String cours) {
+    String name = cours.split(" ")[2];
+    String color = ("bg " + "#ff0000" + " fg " + "#FFFFFF");
+    this.agData.colors.forEach((key, value) {
+      if(name == key) {
+        color = ("bg " + value[0] + " fg " + value [1]);
+      }
+    });
+    return color;
+  }
+
+  //Set a note on a course
+  void setNote(DateTime cours, String note) {
+    this.agData.notes[cours] = note;
+    this.agendaPageMod.saveData("notes", this.agData.notes.toString());
+  }
+
+  //Get the note of a course
+  getNote(DateTime currentTime) async {
+    var saveNotes = await this.agendaPageMod.getValue("notes");
+    Map notes = json.decode(saveNotes);
+    String note = "null";
+    notes.forEach((key, value) {
+      if(currentTime.toString() == key.toString()) {
+        note = value;
+      }
+    });
+    return note;
+  }  
+
+  //PICKERS
+
+  //Get all of teachers and groups list adapted to the view (String List)
+  getAllPickers(var pickers, var pickerSelect) {
+    List<String> finalPickers = new List<String>();
+    int promo;
+    switch (pickerSelect[0]) {
+      case "Info": promo = 0; break;
+      case "RT": promo = 1; break;
+      case "GIM": promo = 2; break;
+      case "CS": promo = 3; break;
+    }
+    if(pickerSelect[1] == "Elève") {
+      for(int i=0; i<pickers[promo].length; i++) {
+        finalPickers.add(quoteToString(pickers[promo][i][0]) + "-" + quoteToString(pickers[promo][i][1]));
+      }
+    } else {
+      for(int i=0; i<pickers[promo].length; i++) {
+        finalPickers.add(quoteToString(pickers[promo][i][0]));
+      }
+    }
+    return finalPickers;
+  }
+
+  //Get internal saved pickers selectionned (already stored)
+  getPickersList() async {
+    var pPromo = await this.agendaPageMod.getValue("pickPromo");
+    var pTeaStu = await this.agendaPageMod.getValue("pickTeachStud");
+    var pGroup = await this.agendaPageMod.getValue("pickGroup");
+    if (pPromo != null)
+      this.agData.pickPromo = pPromo;
+    if (pTeaStu != null)
+      this.agData.pickTeachStudent = pTeaStu;
+    if (pGroup != null)
+      this.agData.pickGroup = pGroup;
+    return [this.agData.pickPromo, this.agData.pickTeachStudent, this.agData.pickGroup];
+  }
+
+  //Set pickers who are selectionned in internal storage
+  void savePickers(String pickPromo, String pickTeachStud, String group) {
+    if(pickPromo != null)
+      this.agendaPageMod.saveData("pickPromo", pickPromo);
+    if(pickTeachStud != null)
+      this.agendaPageMod.saveData("pickTeachStud", pickTeachStud);
+    if(group != null)
+      this.agendaPageMod.saveData("pickGroup", group);
+    getPickersList();
+  }
+
+  //Get internal saved pickers selectionned (not yet stored)
+  getPickersSelect() async {
+    List<String> pickers = new List<String>();
+    //0 : promo, 1 : teach or student, 2 : teach or group
+    var pPromo = await this.agendaPageMod.getValue("pickPromo");
+    var pTeaStu = await this.agendaPageMod.getValue("pickTeachStud");
+    var pGroup = await this.agendaPageMod.getValue("pickGroup");
+    if(pPromo == null) this.agendaPageMod.saveData("pickPromo", "Info");
+    if(pTeaStu == null) this.agendaPageMod.saveData("pickTeachStud", "Elève");
+    if(pGroup == null) this.agendaPageMod.saveData("pickGroup", "INFO1-1A");
+    pickers.add(await this.agendaPageMod.getValue("pickPromo"));
+    pickers.add(await this.agendaPageMod.getValue("pickTeachStud"));
+    pickers.add(await this.agendaPageMod.getValue("pickGroup"));
+    return pickers;
+  }
+
+  //When picker selection changed (in view), get teacher/group list
+  switchChanged() async {
+    var pickers = await getPickersList();
+    var teachersGroups = await getTeachGroups(false);
+    if(pickers[1] == "Elève") return getAllPickers(teachersGroups[0], pickers);
+    else return getAllPickers(teachersGroups[1], pickers);
+  }
+
+  //DATETIME FUNCTIONS
+
+  //Get the number of the month of monday's week
   getMonday(DateTime date) {
     var monday;
     int nbDatMonday;
@@ -148,6 +306,7 @@ class AgendaPageCtrl extends MasterCtrl {
     return monday;
   }
 
+  //Get the number of week of the year
   getFirstWeek(DateTime date) {
     var first = new DateTime(date.year, 1, 1);
     Duration diff = date.difference(first);
@@ -159,6 +318,7 @@ class AgendaPageCtrl extends MasterCtrl {
     return week;
   }
 
+  //Get the number of the next day of the month
   getNextDay(DateTime date) {
     var today = date.day;
     var nextDay = date.day+1;
@@ -195,6 +355,7 @@ class AgendaPageCtrl extends MasterCtrl {
     return DateTime(nextYear, nextMonth, nextDay);
   }
 
+  //Get the number of a day of a month
   getSomeDays(DateTime date, int moreDays) {
     var today = date.day;
     var nextDay = date.day+moreDays;
@@ -231,11 +392,43 @@ class AgendaPageCtrl extends MasterCtrl {
     return DateTime(nextYear, nextMonth, nextDay);
   }
 
+  //Get the current day or the monday of the next week of weekend
+  initDay(DateTime now) {
+    if (now.weekday < 6)
+      return now;
+    else {
+      if (now.weekday == 6) return getSomeDays(now, 2);
+      if (now.weekday == 7) return getSomeDays(now, 1);
+    }
+  }
+  
+  //List's object converter
+  List<String> dynamicToGroup(List<dynamic> list, int promo) {
+    List<String> finalList = new List<String>();
+    for(int i=0; i<list[promo].length; i++)
+      finalList.add(list[promo][i][0].split("\"")[1] + "-" + list[promo][i][1].split("\"")[1]);
+    return finalList;
+  }
+  List<String> dynamicToTeachers(List<dynamic> list, int promo) {
+    List<String> finalList = new List<String>();
+    for(int i=0; i<list[promo].length; i++)
+      finalList.add(list[promo][i][1].split("\"")[1] + " " + list[promo][i][2].split("\"")[1]);
+    return finalList;
+  }
+  //Remove first and last quote of a string
+  String quoteToString(String str) {
+    if(str.split("\"")[0] == "")
+      return str.split("\"")[1];
+    else
+      return str;
+  }
+
   //FETCH DATA
 
   //Retrive calendar data in json
-  fetchAgenda(String url) async {
+  fetchAgenda(String fUrl) async {
     
+    String url = quoteToString(fUrl);
     var doc = await this.agendaPageMod.fetchAgenda('https://flopedt.iut-blagnac.fr' + url);
     var docS = json.encode(utf8.decode(doc.bodyBytes));
 
@@ -308,7 +501,7 @@ class AgendaPageCtrl extends MasterCtrl {
   //List of groups
   void listGroup(var json) {
     //indexPromo => 0 : info, 1 : rt, 2 : gim, 3 : cs
-    List<List> promo = new List<List>();
+    List<List<String>> promo = new List<List<String>>();
     var groupJson = json[23][4][9][2][2];
 
     for(int i=2; i<groupJson.length; i+=2) {
@@ -328,10 +521,10 @@ class AgendaPageCtrl extends MasterCtrl {
 
   //List of teachers
   void listTeachers(var json) {
-    List<List> teachInfo = new List<List>();
-    List<List> teachRT = new List<List>();
-    List<List> teachGIM = new List<List>();
-    List<List> teachCS = new List<List>();
+    List<List<String>> teachInfo = new List<List<String>>();
+    List<List<String>> teachRT = new List<List<String>>();
+    List<List<String>> teachGIM = new List<List<String>>();
+    List<List<String>> teachCS = new List<List<String>>();
 
     var teachJson = json[23][4][13][2][2];
 

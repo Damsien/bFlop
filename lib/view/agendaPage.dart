@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+  //Plugins
+import 'package:flutter/cupertino.dart';
+
   //Importation du controlleur
 import '../controller/agendaPageCtrl.dart';
 
@@ -47,8 +50,10 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
   //Interface
     //Theme
   Brightness theme;
+
     //Progress Bar
   var progressBarVisible = false;
+  
     //TabBar1
   List<Tab> semTabs = <Tab>[
     Tab(text: '1'),
@@ -59,11 +64,11 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
   TabController semTabController;
   int moreDays = 0;
   var semTabView = <Widget>[
-      Text("1"),
-      Text("2"),
-      Text("3"),
-      Text("4")
-    ];
+    Text("1"),
+    Text("2"),
+    Text("3"),
+    Text("4")
+  ];
 
     //TabBar2
   List<Tab> dayTabs = <Tab>[
@@ -79,10 +84,15 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
   //Data
     //Agenda
   var agenda;
+    //Teachers or groups
+  List<String> teachersGroups = ['INFO1-1A'];
     //Teachers
   var teachers;
     //Groups
   var groups;
+    //Promos
+  List<String> promos = ["Info", "RT", "GIM", "CS"];
+  List<String> teachOrGroup = ["Elève", "Prof"];
     //Dates
   List<String> days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
   List<String> months = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
@@ -93,11 +103,17 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
   var ven = DateTime.now();
   List<DateTime> daysDate = new List<DateTime>(5);
 
+
   //Items selections
     //PopMenu
   var popMenuSelection;
+    //Tabs
   var daysSelection = DateTime.now().weekday-1;
   var semSelection = 0;
+    //Pickers
+  String pickPromo = "Info";
+  String pickTeachStudent = "Elève";
+  String pickTeachGroup = "INFO1-1A";
 
   //METHODS / FUNCTIONS
 
@@ -106,6 +122,9 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
      
+    //Init current day
+    this.daysSelection = this.ctrl.initDay(DateTime.now()).weekday-1;
+
     //Dates
     this.lun = this.ctrl.getMonday(DateTime.now());
     this.mar = this.ctrl.getNextDay(this.lun);
@@ -155,7 +174,7 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
       Tab(text: this.jeu.day.toString() + "/" + this.jeu.month.toString()),
       Tab(text: this.ven.day.toString() + "/" + this.ven.month.toString())
     ];
-    this.dayTabController = TabController(initialIndex: DateTime.now().weekday-1, vsync: this, length: this.dayTabs.length);
+    this.dayTabController = TabController(initialIndex:this.ctrl.initDay(DateTime.now()).weekday-1, vsync: this, length: this.dayTabs.length);
     daysSelectionFunc() {
       setState(() {
         this.daysSelection = this.dayTabController.index;
@@ -168,6 +187,7 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
       if(this.theme == Brightness.dark) this.tabLabelColor = Colors.white;
       else this.tabLabelColor = Colors.black;
     });
+    
     updateAllDatas(true);
   }
 
@@ -187,23 +207,30 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
     this.updateTheme(false);
   }
 
+
   //Calendar, student and teacher informations
   void updateAllDatas(bool isRuntime) async {
     setState(() {
       this.progressBarVisible = true;
     });
-    var all = await this.ctrl.getAll(isRuntime, '/ics/INFO/group/INFO1/4B.ics');
+    var all = await this.ctrl.getAll(isRuntime);
     if(all != null) {
       setState(() {
         this.agenda = all[0];
-        this.teachers = all[1];
-        this.groups = all[2];
+        //this.teachersGroups = all[1];
+        //this.groups = all[2];
+        this.teachersGroups = all[1];
+
+        this.pickPromo = all[2][0];
+        this.pickTeachStudent = all[2][1];
+        this.pickTeachGroup = all[2][2];
+        //this.teachers = this.ctrl.dynamicToTeachers(all[2], 0);
+        //print(this.teachers);
+        //print(all[2]);
+        //this.teachersGroups = this.teachers;
         this.progressBarVisible = false;
       });
     }
-    //print(this.agenda);
-    //print(this.teachers);
-    //print(this.groups);
   }
   
 
@@ -339,6 +366,102 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
                     ),
                 ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(children: [
+                    Icon(Icons.group),
+                    IgnorePointer(
+                      ignoring: this.progressBarVisible,
+                      child: DropdownButton<String>(
+                        value: this.pickPromo,
+                        onChanged: (String newValue) async {
+                          this.ctrl.savePickers(newValue, null, null);
+                          this.teachersGroups = await this.ctrl.switchChanged();
+                          this.pickTeachGroup = this.teachersGroups[0];
+                          var pickersSelect = await this.ctrl.getPickersSelect();
+                          setState(() {
+                            this.pickPromo = newValue;
+                            this.pickTeachStudent = pickersSelect[1];
+                            //print(pickersSelect[2]);
+                          });
+                        },
+                        items: this.promos
+                            .map<DropdownMenuItem<String>>((String value) {
+                          this.pickPromo = value;
+                          return DropdownMenuItem<String>(
+                            value: this.pickPromo,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      )
+                    )
+                    ],
+                  ),
+                  Row(children: [
+                    Icon(Icons.mood),
+                    IgnorePointer(
+                      ignoring: this.progressBarVisible,
+                      child : DropdownButton<String>(
+                        value: this.pickTeachStudent,
+                        onChanged: (String newValue) async {
+                          this.ctrl.savePickers(null, newValue, null);
+                          this.teachersGroups = await this.ctrl.switchChanged();
+                          this.pickTeachGroup = this.teachersGroups[0];
+                          var pickersSelect = await this.ctrl.getPickersSelect();
+                          setState(() {
+                            this.pickPromo = pickersSelect[0];
+                            this.pickTeachStudent = newValue;
+                            //this.pickTeachGroup = pickersSelect[2];
+                          });
+                        },
+                        items: this.teachOrGroup
+                            .map<DropdownMenuItem<String>>((String value) {
+                          this.pickTeachStudent = value;
+                          return DropdownMenuItem<String>(
+                            value: this.pickTeachStudent,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      )
+                    )
+                    ],
+                  ),
+                  Row(children: [
+                    Icon(Icons.assignment),
+                    IgnorePointer(
+                      ignoring: this.progressBarVisible,
+                      child: DropdownButton<String>(
+                        value: this.pickTeachGroup,
+                        onChanged: (String newValue) async {
+                          this.ctrl.savePickers(null, null, newValue);
+                          this.ctrl.getAll(false);
+                          var pickersSelect = await this.ctrl.getPickersSelect();
+                          setState(() {
+                            this.progressBarVisible = true;
+                          });
+                          await new Future.delayed(const Duration(seconds : 15));
+                          setState(() {
+                            this.progressBarVisible = false;
+                            this.pickPromo = pickersSelect[0];
+                            this.pickTeachStudent = pickersSelect[1];
+                            this.pickTeachGroup = newValue;
+                          });
+                        },
+                        items: this.teachersGroups
+                            .map<DropdownMenuItem<String>>((String value) {
+                          this.pickTeachGroup = value;
+                          return DropdownMenuItem<String>(
+                            value: this.pickTeachGroup,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      )
+                    )
+                    ],
+                  ),
+                ],
+              ),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
@@ -417,5 +540,3 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
     
   }
 }
-
-enum PopMenu { settings }

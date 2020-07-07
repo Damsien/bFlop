@@ -37,6 +37,7 @@ class AgendaPageModel extends MasterModel {
 
   getGroups() async {
     var groups = await super.getValue('groups');
+    //print(groups);
     return json.decode(groups);
   }
 
@@ -70,6 +71,7 @@ class AgendaPageModel extends MasterModel {
         reloadLog = false;
       }
     }
+    //print(reloadLog);
     return reloadLog;
   }
 
