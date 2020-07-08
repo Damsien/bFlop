@@ -133,30 +133,31 @@ class AgendaPageCtrl extends MasterCtrl {
           int.parse(json[j][1].split("")[9].toString()+json[j][1].split("")[10].toString()),
           int.parse(json[j][1].split("")[11].toString()+json[j][1].split("")[12].toString()),
         );
+        //getNote(timeSplit)
 
         if(getFirstWeek(getMonday(timeSplit)) == firstWeek-4) {
           if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7){
-            print(colorUpdate(json[j+5][1]).toString());
+            //print(colorUpdate(json[j+5][1]).toString());
             this.agData.agList[0][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
-            +colorUpdate(json[j+5][1]).toString()+'\\\\n'+getNote(timeSplit)+'"';
+            +colorUpdate(json[j+5][1]).toString()+'"';
         }}
         
         else if(getFirstWeek(getMonday(timeSplit)) == firstWeek+1) {
           if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7)
             this.agData.agList[1][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
-            +colorUpdate(json[j+5][1])+getNote(timeSplit)+'"';
+            +colorUpdate(json[j+5][1]).toString()+'"';
         }
         
         else if(getFirstWeek(getMonday(timeSplit)) == firstWeek+2) {
           if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7)
             this.agData.agList[2][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
-            +colorUpdate(json[j+5][1])+getNote(timeSplit)+'"';
+            +colorUpdate(json[j+5][1]).toString()+'"';
         }
       
         else if(getFirstWeek(getMonday(timeSplit)) == firstWeek+3) {
           if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7)
             this.agData.agList[3][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
-            +colorUpdate(json[j+5][1])+getNote(timeSplit)+'"';
+            +colorUpdate(json[j+5][1]).toString()+'"';
         }
 
       }
@@ -414,6 +415,32 @@ class AgendaPageCtrl extends MasterCtrl {
     for(int i=0; i<list[promo].length; i++)
       finalList.add(list[promo][i][1].split("\"")[1] + " " + list[promo][i][2].split("\"")[1]);
     return finalList;
+  }
+  List<List<List<String>>> dynamicToAgenda(List<dynamic> list) {
+    var month = [[new List<String>(6), new List<String>(6), new List<String>(6), new List<String>(6), new List<String>(6)],
+        [new List<String>(6), new List<String>(6), new List<String>(6), new List<String>(6), new List<String>(6)],
+        [new List<String>(6), new List<String>(6), new List<String>(6), new List<String>(6), new List<String>(6)],
+        [new List<String>(6), new List<String>(6), new List<String>(6), new List<String>(6), new List<String>(6)]];
+    List<List<List<String>>> finalList = month;
+    
+    for(int i=0; i<list.length; i++) {
+      for(int j=0; j<list[i].length; j++) {
+        for(int k=0; k<list[i][j].length; k++) {
+          finalList[i][j][k] = list[i][j][k];
+        }
+      }
+    }
+    return finalList;
+  }
+  String listToString(List<List<List<String>>> list, int week, int day, int course) {
+    String finalString;
+    if(list.toString() == "[]") {
+      finalString = "";
+    } else {
+      finalString = list[week][day][course];
+    }
+    if(finalString == null) finalString = "";
+    return finalString;
   }
   //Remove first and last quote of a string
   String quoteToString(String str) {

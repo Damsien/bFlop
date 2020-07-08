@@ -76,3 +76,17 @@ class AgendaPageModel extends MasterModel {
   }
 
 }
+
+//Remove first and last quote of a string
+String quoteToString(String str) {
+  String newStr;
+  if(str.split("\"")[0] == "") {
+    for(int i=0; i<str.split("").length; i++) {
+      if(str.split("")[i] != '"')
+        newStr = newStr + str.split("")[i];
+    }
+    return str.split("\"")[1];
+  }
+  else
+    return str;
+}

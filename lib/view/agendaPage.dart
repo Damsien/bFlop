@@ -83,7 +83,7 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
 
   //Data
     //Agenda
-  var agenda;
+  List<List<List<String>>> agenda = new List<List<List<String>>>();
     //Teachers or groups
   List<String> teachersGroups = ['INFO1-1A'];
     //Teachers
@@ -164,7 +164,7 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
           Tab(text: this.ctrl.getSomeDays(this.ven,this.moreDays).day.toString() + "/" + this.ctrl.getSomeDays(this.ven,this.moreDays).month.toString())
         ];
       });
-    };
+    }
     this.semTabController.addListener(semSelectionFunc);
     
     this.dayTabs = <Tab>[
@@ -179,7 +179,7 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
       setState(() {
         this.daysSelection = this.dayTabController.index;
       });
-    };
+    }
     this.dayTabController.addListener(daysSelectionFunc);
 
     setState(() {
@@ -216,7 +216,7 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
     var all = await this.ctrl.getAll(isRuntime);
     if(all != null) {
       setState(() {
-        this.agenda = all[0];
+        this.agenda = this.ctrl.dynamicToAgenda(all[0]);
         //this.teachersGroups = all[1];
         //this.groups = all[2];
         this.teachersGroups = all[1];
@@ -270,6 +270,20 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
           break;    
         }
       }
+    }
+    updatePickers();
+  }
+
+  void updatePickers() async {
+    await new Future.delayed(const Duration(seconds: 1));
+    var pickersSelect = await this.ctrl.getPickersSelect();
+    print(pickersSelect);
+    if(pickersSelect != null) {
+    setState(() {
+      this.pickPromo = pickersSelect[0];
+      this.pickTeachStudent = pickersSelect[1];
+      this.pickTeachGroup = pickersSelect[2];
+    });
     }
   }
 
@@ -340,7 +354,7 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
                 child: TabBar(
                   onTap: (index) {setState(() {
                     this.daysSelection = index;
-                  });},
+                  }); updatePickers();},
                   controller: this.dayTabController,
                   tabs: this.dayTabs,
                   labelColor: this.tabLabelColor,
@@ -350,20 +364,72 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
                 child: GestureDetector(
                   onHorizontalDragDown: (e) {swipeSlide(e);},
                   child: TabBarView(
-                        //physics: NeverScrollableScrollPhysics(),
-                        controller: this.dayTabController,
-                        children: this.dayTabs.map((Tab tab) {
-                          final String label = tab.text;
-                          var oui = this.dayTabs.indexOf(tab);
-                          return Center(
-                            child: Text(
-                              'This is the $label tab' + oui.toString() + this.semSelection.toString(),
-                              style: const TextStyle(fontSize: 36),
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                      //physics: NeverScrollableScrollPhysics(),
+                      controller: this.dayTabController,
+                      children: this.dayTabs.map((Tab tab) {
+                        final String label = tab.text;
+                        var day = this.dayTabs.indexOf(tab);
+                        return Center(
+                          child: ListView(
+                            children: <Widget>[
+                              Card(
+                                child: ListTile(title: Text(this.ctrl.listToString(this.agenda, 0, 0, day) + day.toString()))
+                                
+                              ),
+                              Card(
+                                child: ListTile(
+                                  leading: FlutterLogo(),
+                                  title: Text('One-line with leading widget'),
+                                ),
+                              ),
+                              Card(
+                                child: ListTile(
+                                  title: Text('One-line with trailing widget'),
+                                  trailing: Icon(Icons.more_vert),
+                                ),
+                              ),
+                              Card(
+                                child: ListTile(
+                                  leading: FlutterLogo(),
+                                  title: Text('One-line with both widgets'),
+                                  trailing: Icon(Icons.more_vert),
+                                ),
+                              ),
+                              Card(
+                                child: ListTile(
+                                  title: Text('One-line dense ListTile'),
+                                  dense: true,
+                                ),
+                              ),
+                              Card(
+                                child: ListTile(
+                                  leading: FlutterLogo(size: 56.0),
+                                  title: Text('Two-line ListTile'),
+                                  subtitle: Text('Here is a second line'),
+                                  trailing: Icon(Icons.more_vert),
+                                ),
+                              ),
+                              Card(
+                                child: ListTile(
+                                  leading: FlutterLogo(size: 72.0),
+                                  title: Text('Three-line ListTile'),
+                                  subtitle: Text(
+                                    'A sufficiently long subtitle warrants three lines.'
+                                  ),
+                                  trailing: Icon(Icons.more_vert),
+                                  isThreeLine: true,
+                                ),
+                              ),
+                            ],
+                          )
+                          /*child: Text(
+                            'This is the $label tab' + day.toString() + this.semSelection.toString(),
+                            style: const TextStyle(fontSize: 36),
+                          ),*/
+                        );
+                      }).toList(),
                     ),
+                  ),
                 ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
