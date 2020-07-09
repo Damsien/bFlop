@@ -115,6 +115,9 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
   String pickTeachStudent = "Elève";
   String pickTeachGroup = "INFO1-1A";
 
+    //TextField
+  TextEditingController textFieldCtrl;
+
   //METHODS / FUNCTIONS
 
   //Executed when page is loading
@@ -187,6 +190,7 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
       if(this.theme == Brightness.dark) this.tabLabelColor = Colors.white;
       else this.tabLabelColor = Colors.black;
     });
+    this.textFieldCtrl = TextEditingController();
     
     updateAllDatas(true);
   }
@@ -369,64 +373,184 @@ class _AgendaPageState extends State<AgendaPage> with TickerProviderStateMixin {
                       children: this.dayTabs.map((Tab tab) {
                         final String label = tab.text;
                         var day = this.dayTabs.indexOf(tab);
-                        return Center(
-                          child: ListView(
-                            children: <Widget>[
-                              Card(
-                                child: ListTile(title: Text(this.ctrl.listToString(this.agenda, 0, 0, day) + day.toString()))
-                                
-                              ),
-                              Card(
-                                child: ListTile(
-                                  leading: FlutterLogo(),
-                                  title: Text('One-line with leading widget'),
-                                ),
-                              ),
-                              Card(
-                                child: ListTile(
-                                  title: Text('One-line with trailing widget'),
-                                  trailing: Icon(Icons.more_vert),
-                                ),
-                              ),
-                              Card(
-                                child: ListTile(
-                                  leading: FlutterLogo(),
-                                  title: Text('One-line with both widgets'),
-                                  trailing: Icon(Icons.more_vert),
-                                ),
-                              ),
-                              Card(
-                                child: ListTile(
-                                  title: Text('One-line dense ListTile'),
-                                  dense: true,
-                                ),
-                              ),
-                              Card(
-                                child: ListTile(
-                                  leading: FlutterLogo(size: 56.0),
-                                  title: Text('Two-line ListTile'),
-                                  subtitle: Text('Here is a second line'),
-                                  trailing: Icon(Icons.more_vert),
-                                ),
-                              ),
-                              Card(
-                                child: ListTile(
-                                  leading: FlutterLogo(size: 72.0),
-                                  title: Text('Three-line ListTile'),
-                                  subtitle: Text(
-                                    'A sufficiently long subtitle warrants three lines.'
+                        return Row(
+
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              margin: new EdgeInsets.only(left: 20.0, right: 10.0),
+                              child: Column(children: [
+                                Container(child: Text("8h00"), margin: new EdgeInsets.only(top: 5)),
+                                Container(child: Text("9h25"), margin: new EdgeInsets.only(top: 40)),
+                                Container(child: Text("9h30"), margin: new EdgeInsets.only(top: 15)),
+                                Container(child: Text("10h55"), margin: new EdgeInsets.only(top: 40)),
+                                Container(child: Text("11h00"), margin: new EdgeInsets.only(top: 13)),
+                                Container(child: Text("12h25"), margin: new EdgeInsets.only(top: 40)),
+                                Container(child: Text("14h15"), margin: new EdgeInsets.only(top: 13)),
+                                Container(child: Text("15h40"), margin: new EdgeInsets.only(top: 40)),
+                                Container(child: Text("15h45"), margin: new EdgeInsets.only(top: 13)),
+                                Container(child: Text("16h25"), margin: new EdgeInsets.only(top: 40)),
+                                Container(child: Text("16h30"), margin: new EdgeInsets.only(top: 13)),
+                                Container(child: Text("17h40"), margin: new EdgeInsets.only(top: 40)),
+                              ])
+                            ),
+                            Expanded(
+                            child: ListView(
+                              children: <Widget>[
+                                Container(
+                                  height: 85,
+                                  margin: new EdgeInsets.only(right: 20),
+                                  child: Card(
+                                    child: ListTile(
+                                      title: Text(this.ctrl.listToString(this.agenda, this.semSelection, day, 0)),
+                                      onTap: () => {print("oui")},
+                                    )
                                   ),
-                                  trailing: Icon(Icons.more_vert),
-                                  isThreeLine: true,
                                 ),
-                              ),
-                            ],
+                                Container(
+                                  height: 85,
+                                  margin: new EdgeInsets.only(right: 20),
+                                  child: Card(
+                                    color: (this.agenda.length == 0 ? Colors.grey[800] : 
+                                    HexColor.fromHex(this.ctrl.listToString(this.agenda, this.semSelection, day, 1).split("\\")[4].split(" ")[1].split("#")[1])),
+                                    child: ListTile(
+                                      title: Center(child: Text(//this.ctrl.listToString(this.agenda, this.semSelection, day, 1)
+                                        (this.agenda.length == 0 ? "" :
+                                        this.ctrl.listToString(this.agenda, this.semSelection, day, 1).split("\\")[0].split(" ")[2]) +
+                                        "\n" +
+                                        (this.agenda.length == 0 ? "" :
+                                        this.ctrl.listToString(this.agenda, this.semSelection, day, 1).split("\\")[3].split(" ")[3]) +
+                                        "\n" +
+                                        (this.agenda.length == 0 ? "" :
+                                        this.ctrl.listToString(this.agenda, this.semSelection, day, 1).split("\\")[2].split(" ")[2])
+                                        ,textAlign: TextAlign.center,
+                                          style: TextStyle(color: (this.agenda.length == 0 ? Colors.white :
+                                          HexColor.fromHex(HexColor.stringToHex(this.ctrl.listToString(this.agenda, this.semSelection, day, 1)
+                                          .split("\\")[4].split(" ")[3])))),
+                                        )
+                                      ),
+                                      onTap: () async {
+                                        print(this.agenda.length);
+                                        if(this.agenda.length != 0) {
+                                        String note = await this.ctrl.getNote(new DateTime(
+                                          int.parse(this.ctrl.listToString(this.agenda, this.semSelection, day, 1).split("\\n")[5].split(" ")[0]),
+                                          int.parse(this.ctrl.listToString(this.agenda, this.semSelection, day, 1).split("\\n")[5].split(" ")[1]),
+                                          int.parse(this.ctrl.listToString(this.agenda, this.semSelection, day, 1).split("\\n")[5].split(" ")[2]),
+                                          int.parse(this.ctrl.listToString(this.agenda, this.semSelection, day, 1).split("\\n")[5].split(" ")[3]),
+                                          int.parse(this.ctrl.listToString(this.agenda, this.semSelection, day, 1).split("\\n")[5].split(" ")[4]),
+                                        ));
+                                        return showDialog<void>(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text('Informations sur le cours'),
+                                              content: SingleChildScrollView(
+                                                child: ListBody(
+                                                  children: <Widget>[
+                                                    Text("Cours : " + this.ctrl.listToString(this.agenda, this.semSelection, day, 1)
+                                                    .split("\\")[0].split(" ")[2]),
+                                                    Text("Professeur : " + this.ctrl.getNameFirstName(this.ctrl.listToString(this.agenda, this.semSelection, day, 1)
+                                                    .split("\\")[2].split(" ")[2])),
+                                                    Text("Salle : " + this.ctrl.listToString(this.agenda, this.semSelection, day, 1).split("\\")[3].split(" ")[3]),
+                                                    Text("Note : "),
+                                                    TextField(
+                                                    decoration: InputDecoration(
+                                                      border: OutlineInputBorder(),
+                                                      labelText: 'Note',
+                                                    ),
+                                                    controller: TextEditingController(text: note),
+                                                    onSubmitted: (String value) async {
+                                                      await showDialog<void>(
+                                                        context: context,
+                                                        builder: (BuildContext context) {
+                                                          return AlertDialog(
+                                                            title: const Text('Thanks!'),
+                                                            content: Text('You typed "$value".'),
+                                                            actions: <Widget>[
+                                                              FlatButton(
+                                                                onPressed: () {
+                                                                  Navigator.pop(context);
+                                                                },
+                                                                child: const Text('OK'),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
+                                                    },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              actions: <Widget>[
+                                                FlatButton(
+                                                  child: Text('Ok'),
+                                                  onPressed: () { Navigator.of(context).pop(); },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                        }
+                                      },
+                                    )
+                                  ),
+                                ),
+                                Container(
+                                  height: 85,
+                                  child: Card(
+                                    child: ListTile(
+                                      title: Text(this.ctrl.listToString(this.agenda, 0, 0, day) + day.toString())
+                                    )
+                                  ),
+                                ),
+                                Container(
+                                  height: 85,
+                                  child: Card(
+                                    child: ListTile(
+                                      title: Text(this.ctrl.listToString(this.agenda, 0, 0, day) + day.toString())
+                                    )
+                                  ),
+                                ),
+                                Container(
+                                  height: 85,
+                                  child: Card(
+                                    child: ListTile(
+                                      title: Text(this.ctrl.listToString(this.agenda, 0, 0, day) + day.toString())
+                                    )
+                                  ),
+                                ),
+                                Container(
+                                  height: 85,
+                                  child: Card(
+                                    child: ListTile(
+                                      title: Text(this.ctrl.listToString(this.agenda, 0, 0, day) + day.toString())
+                                    )
+                                  ),
+                                ),
+                                /*
+                                Card(
+                                  child: ListTile(
+                                    leading: FlutterLogo(size: 72.0),
+                                    title: Text('Three-line ListTile'),
+                                    subtitle: Text(
+                                      'A sufficiently long subtitle warrants three lines.'
+                                    ),
+                                    trailing: Icon(Icons.more_vert),
+                                    isThreeLine: true,
+                                  ),
+                                ),*/
+                              ],
+                            )
+                            /*child: Text(
+                              'This is the $label tab' + day.toString() + this.semSelection.toString(),
+                              style: const TextStyle(fontSize: 36),
+                            ),*/
                           )
-                          /*child: Text(
-                            'This is the $label tab' + day.toString() + this.semSelection.toString(),
-                            style: const TextStyle(fontSize: 36),
-                          ),*/
+                          ]
                         );
+                        
+                        
                       }).toList(),
                     ),
                   ),

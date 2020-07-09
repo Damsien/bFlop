@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:bflop/model/masterModel.dart';
+import 'package:http/io_client.dart';
 
 class AgendaPageModel extends MasterModel {
 
@@ -12,17 +15,50 @@ class AgendaPageModel extends MasterModel {
   }
 
   //Fetch calendar data
-  Future<http.Response> fetchAgenda(String url) {
+  Future<http.Response> fetchAgenda(String url) async {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = new HttpClient()
+      ..badCertificateCallback =
+          ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = new IOClient(httpClient);
+  
+    //final response = await http.post('$url', // Previous Code
+  
+    final response = await ioClient.get(url,
+        headers: {
+          HttpHeaders.contentTypeHeader: 'text/calendar',
+          //HttpHeaders.authorizationHeader: '',
+          
+        }
+        );
+    return response;
+    /*
     return http.get(url,
         headers: {'Content-Type': 'text/calendar'}
-    );
+    );*/
   }
 
   //Fetch student/teachers data
-  Future<http.Response> fetchGroupTeach(String url) {
-    return http.get(url,
+  Future<http.Response> fetchGroupTeach(String url) async {
+    bool trustSelfSigned = true;
+    HttpClient httpClient = new HttpClient()
+      ..badCertificateCallback =
+          ((X509Certificate cert, String host, int port) => trustSelfSigned);
+    IOClient ioClient = new IOClient(httpClient);
+  
+    //final response = await http.post('$url', // Previous Code
+  
+    final response = await ioClient.get(url,
+        headers: {
+          HttpHeaders.contentTypeHeader: 'text/html',
+          //HttpHeaders.authorizationHeader: '',
+          
+        }
+        );
+    return response;
+    /*return http.get(url,
         headers: {'Content-Type': 'text/html'}
-    );
+    );*/
   }
 
   void saveTeachGroups(var teachers, var groups) {

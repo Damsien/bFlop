@@ -139,25 +139,29 @@ class AgendaPageCtrl extends MasterCtrl {
           if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7){
             //print(colorUpdate(json[j+5][1]).toString());
             this.agData.agList[0][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
-            +colorUpdate(json[j+5][1]).toString()+'"';
+            +colorUpdate(json[j+5][1]).toString()+'\\\\n'+timeSplit.year.toString()+" "+timeSplit.month.toString()
+            +" "+timeSplit.day.toString()+" "+timeSplit.hour.toString()+" "+timeSplit.minute.toString()+'"';
         }}
         
         else if(getFirstWeek(getMonday(timeSplit)) == firstWeek+1) {
           if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7)
             this.agData.agList[1][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
-            +colorUpdate(json[j+5][1]).toString()+'"';
+            +colorUpdate(json[j+5][1]).toString()+'\\\\n'+timeSplit.year.toString()+" "+timeSplit.month.toString()
+            +" "+timeSplit.day.toString()+" "+timeSplit.hour.toString()+" "+timeSplit.minute.toString()+'"';
         }
         
         else if(getFirstWeek(getMonday(timeSplit)) == firstWeek+2) {
           if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7)
             this.agData.agList[2][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
-            +colorUpdate(json[j+5][1]).toString()+'"';
+            +colorUpdate(json[j+5][1]).toString()+'\\\\n'+timeSplit.year.toString()+" "+timeSplit.month.toString()
+            +" "+timeSplit.day.toString()+" "+timeSplit.hour.toString()+" "+timeSplit.minute.toString()+'"';
         }
       
         else if(getFirstWeek(getMonday(timeSplit)) == firstWeek+3) {
           if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7)
             this.agData.agList[3][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
-            +colorUpdate(json[j+5][1]).toString()+'"';
+            +colorUpdate(json[j+5][1]).toString()+'\\\\n'+timeSplit.year.toString()+" "+timeSplit.month.toString()
+            +" "+timeSplit.day.toString()+" "+timeSplit.hour.toString()+" "+timeSplit.minute.toString()+'"';
         }
 
       }
@@ -403,6 +407,23 @@ class AgendaPageCtrl extends MasterCtrl {
     }
   }
   
+  getNameFirstName(String initiales) {
+    String finalStr = "";
+    int promo;
+    switch(this.agData.pickPromo) {
+      case "Info" : promo = 0; break;
+      case "RT" : promo = 1; break;
+      case "GIM" : promo = 2; break;
+      case "CS" : promo = 3; break;
+    }
+    for(int i=0; i<this.agData.teachList[promo].length; i++) {
+      if(this.agData.teachList[promo][i][0] == initiales) {
+        finalStr = this.agData.teachList[promo][i][2] + " " + this.agData.teachList[promo][i][1];
+      }
+    }
+    return finalStr;
+  }
+
   //List's object converter
   List<String> dynamicToGroup(List<dynamic> list, int promo) {
     List<String> finalList = new List<String>();
@@ -440,7 +461,21 @@ class AgendaPageCtrl extends MasterCtrl {
       finalString = list[week][day][course];
     }
     if(finalString == null) finalString = "";
+    else finalString = sameString(finalString);
     return finalString;
+  }
+  String sameString(String str) {
+    String newstr = "";
+    if(str.split("").length != 0) {
+      if(str.split("")[0] == '"') {
+        newstr = str.split("\\")[0].split('"')[1] + str.split("\\")[1] +"\\"+ str.split("\\")[2] +"\\"+
+        str.split("\\")[3] +"\\"+ str.split("\\")[4] +"\\"+ str.split("\\")[5] + str.split("\\")[6]
+        + str.split("\\")[7] +"\\"+ str.split("\\")[8] +"\\"+ str.split("\\")[9] +"\\"+ str.split("\\")[10].split('"')[0];
+      } else {
+        newstr = str;
+      }
+    }
+    return newstr;
   }
   //Remove first and last quote of a string
   String quoteToString(String str) {
@@ -577,4 +612,27 @@ class AgendaPageCtrl extends MasterCtrl {
     this.agData.teachList.add(teachCS);
   }
 
+}
+
+extension HexColor on Color {
+  /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
+  static Color fromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
+  static String stringToHex(String colorString) {
+    String realString = colorString.split("(")[1];
+    String finalString = "#" + realString.split("xff")[1].split(")")[0];
+    return finalString;
+  }
+
+  /// Prefixes a hash sign if [leadingHashSign] is set to `true` (default is `true`).
+  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
+      '${alpha.toRadixString(16).padLeft(2, '0')}'
+      '${red.toRadixString(16).padLeft(2, '0')}'
+      '${green.toRadixString(16).padLeft(2, '0')}'
+      '${blue.toRadixString(16).padLeft(2, '0')}';
 }
