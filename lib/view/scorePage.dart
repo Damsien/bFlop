@@ -13,8 +13,24 @@ class ScorePageMain extends StatelessWidget {
     //Données générales de la page + accès au reste
   BottomNavBar bottom;
 
+    //StatefulWidget
+  ScorePage scorePage;
+  
+    //Theme
+  Brightness theme;
+
   ScorePageMain(BottomNavBar bot) {
+    
+    
+    /*print("build de la page theme : " + bot.dataPage.theme.toString());
     this.bottom = bot;
+    this.theme = bot.dataPage.theme;
+    print("build de la page them : " + this.theme.toString());
+
+    this.scorePage = new ScorePage(bottom: bottom);
+    this.scorePage.initTheme(this.theme);
+    */
+
   }
 
   @override
@@ -22,18 +38,34 @@ class ScorePageMain extends StatelessWidget {
     return MaterialApp(
       title: 'Notes',
       debugShowCheckedModeBanner: false,
-      home: new ScorePage(bottom: bottom),
+      home: this.scorePage,
     );
   }
 }
 
 class ScorePage extends StatefulWidget {
   final BottomNavBar bottom;
+  Brightness theme;
   
   ScorePage({Key key, this.bottom}) : super(key: key);
 
+  void initTheme(Brightness theme) {
+    this.theme = theme;
+    createState();
+    print("le theme : " + theme.toString());
+  }
+
   @override
   _ScorePageState createState() => _ScorePageState();
+
+  /*
+  @override
+  _ScorePageState createState() {
+    print("createState");
+    _ScorePageState state = new _ScorePageState();
+    state.initTheme(theme);
+    return state;
+  }*/
 }
 
 class _ScorePageState extends State<ScorePage> {
@@ -44,9 +76,7 @@ class _ScorePageState extends State<ScorePage> {
   ScorePageCtrl ctrl = new ScorePageCtrl();
 
   //Interface
-    //Theme
   Brightness theme;
-
 
   //METHODS / FUNCTIONS
 
@@ -55,17 +85,24 @@ class _ScorePageState extends State<ScorePage> {
   void initState() {
     super.initState();
     setState(() {
-      this.theme = widget.bottom.dataPage.theme;
+      //this.theme = widget.theme;
     });
+  }
+
+  void initTheme(Brightness theme) {
+    this.theme = theme;
+      print(widget.theme);
+      print(this.theme);
+    print( "theme " + this.theme.toString() + " theme : " + theme.toString());
   }
 
   //Set the state of the new theme
   void updateTheme(bool val) async {
-    var theme = await ctrl.switchTheme(this.theme, val);
+    var theme = await ctrl.switchTheme(widget.bottom.dataPage.theme, val);
     setState(() {
-      this.theme = theme;
+      widget.bottom.dataPage.theme = theme;
     });
-      widget.bottom.updateAllThemes(theme);
+      widget.bottom.updateAllThemes(theme, "ScorePageMain");
   }
 
   //Switch theme between light and dark
@@ -87,7 +124,7 @@ class _ScorePageState extends State<ScorePage> {
     return MaterialApp(
       title: "Notes",
       theme: ThemeData(
-        brightness: this.theme,
+        brightness: widget.bottom.dataPage.theme,
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
@@ -100,7 +137,17 @@ class _ScorePageState extends State<ScorePage> {
           actions: <Widget>[
               new IconButton(icon: Icon(Icons.refresh), tooltip: 'Rafraichir', onPressed: test),
               new IconButton(icon: Icon(Icons.brightness_4), tooltip: 'Theme', onPressed: switchTheme),
-              new IconButton(icon: Icon(Icons.more_vert), tooltip: 'Options', onPressed: test),],
+              PopupMenuButton(
+              onSelected: (result) { setState(() { var popMenuSelection = result; widget.bottom.switchParam();}); },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                PopupMenuItem(
+                  value: 0,
+                  child: Text('Paramètres'),
+                ),
+              ],
+                tooltip: "Options",
+              )
+              ],
         ),
 /*
         body: Center(

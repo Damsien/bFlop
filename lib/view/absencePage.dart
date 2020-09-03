@@ -44,8 +44,6 @@ class _AbsencePageState extends State<AbsencePage> {
   AbsencePageCtrl ctrl = new AbsencePageCtrl();
 
   //Interface
-    //Theme
-  Brightness theme;
 
 
   //METHODS / FUNCTIONS
@@ -55,17 +53,16 @@ class _AbsencePageState extends State<AbsencePage> {
   void initState() {
     super.initState();
     setState(() {
-      this.theme = widget.bottom.dataPage.theme;
     });
   }
 
   //Set the state of the new theme
   void updateTheme(bool val) async {
-    var theme = await ctrl.switchTheme(this.theme, val);
+    var theme = await ctrl.switchTheme(widget.bottom.dataPage.theme, val);
     setState(() {
-      this.theme = theme;
+      widget.bottom.dataPage.theme = theme;
     });
-      widget.bottom.updateAllThemes(theme);
+      widget.bottom.updateAllThemes(theme, "AbsencePageMain");
   }
 
   //Switch theme between light and dark
@@ -87,7 +84,7 @@ class _AbsencePageState extends State<AbsencePage> {
     return MaterialApp(
       title: "Absences",
       theme: ThemeData(
-        brightness: this.theme,
+        brightness: widget.bottom.dataPage.theme,
         primarySwatch: Colors.purple,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
@@ -100,8 +97,21 @@ class _AbsencePageState extends State<AbsencePage> {
           actions: <Widget>[
               new IconButton(icon: Icon(Icons.refresh), tooltip: 'Rafraichir', onPressed: test),
               new IconButton(icon: Icon(Icons.brightness_4), tooltip: 'Theme', onPressed: switchTheme),
-              new IconButton(icon: Icon(Icons.more_vert), tooltip: 'Options', onPressed: test),],
+              PopupMenuButton(
+              onSelected: (result) { setState(() { var popMenuSelection = result; widget.bottom.switchParam();}); },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                PopupMenuItem(
+                  value: 0,
+                  child: Text('Paramètres'),
+                ),
+              ],
+                tooltip: "Options",
+              )
+              ],
         ),
+        body: Text(
+          (widget.bottom.dataPage.theme == Brightness.dark ? "oui" : "non")
+        )
 /*
         body: Center(
           child: Column(

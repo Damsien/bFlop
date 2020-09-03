@@ -117,6 +117,14 @@ class AgendaPageCtrl extends MasterCtrl {
   //Clear agenda and fetch all of courses
   cleanAgendaData(var json) {
 
+    for(int i=0; i<4; i++) {
+      for(int k=0; k<5; k++) {
+        for(int l=0; l<6; l++) {
+          this.agData.agList[i][k][l] = '"'+'~'+'"';
+        }
+      }
+    }
+
     int firstWeek = getFirstWeek(getMonday(new DateTime.now()));
     DateTime timeSplit;
     List<int> hourCourses = [08, 09, 11, 14, 15, 17];
@@ -135,7 +143,7 @@ class AgendaPageCtrl extends MasterCtrl {
         );
         //getNote(timeSplit)
 
-        if(getFirstWeek(getMonday(timeSplit)) == firstWeek-4) {
+        if(getFirstWeek(getMonday(timeSplit)) == firstWeek) {
           if(timeSplit.weekday-1 != 6 || timeSplit.weekday-1 != 7){
             //print(colorUpdate(json[j+5][1]).toString());
             this.agData.agList[0][timeSplit.weekday-1][hourCourses.indexOf(timeSplit.hour)] = '"'+json[j+5][1]+'\\\\n'
@@ -184,17 +192,24 @@ class AgendaPageCtrl extends MasterCtrl {
 
   //Set a note on a course
   void setNote(DateTime cours, String note) {
-    this.agData.notes[cours] = note;
-    this.agendaPageMod.saveData("notes", this.agData.notes.toString());
+    String realCours = '"'+cours.toIso8601String()+'"';
+    this.agData.notes[realCours] = '"'+note+'"';
+    this.agendaPageMod.saveData("notes", '"'+this.agData.notes.toString()+'"');
   }
 
   //Get the note of a course
   getNote(DateTime currentTime) async {
-    var saveNotes = await this.agendaPageMod.getValue("notes");
-    Map notes = json.decode(saveNotes);
-    String note = "null";
+    String saveNotes = await this.agendaPageMod.getValue("notes");
+    if(saveNotes == null) return "";
+
+    String realNote = "";
+    for(int i=1; i<saveNotes.split("").length-1; i++) {
+      realNote = realNote + saveNotes.split("")[i];
+    }
+    Map notes = json.decode(realNote);
+    String note = "";
     notes.forEach((key, value) {
-      if(currentTime.toString() == key.toString()) {
+      if(currentTime.toIso8601String() == key.toString()) {
         note = value;
       }
     });
@@ -270,8 +285,13 @@ class AgendaPageCtrl extends MasterCtrl {
   switchChanged() async {
     var pickers = await getPickersList();
     var teachersGroups = await getTeachGroups(false);
-    if(pickers[1] == "Elève") return getAllPickers(teachersGroups[0], pickers);
-    else return getAllPickers(teachersGroups[1], pickers);
+    if(pickers[1] == "Elève") {
+      this.agData.pickGroup = getAllPickers(teachersGroups[0], pickers)[0];
+      return getAllPickers(teachersGroups[0], pickers);
+    } else {
+      this.agData.pickGroup = getAllPickers(teachersGroups[1], pickers)[0];
+      return getAllPickers(teachersGroups[1], pickers);
+    }
   }
 
   //DATETIME FUNCTIONS
@@ -417,8 +437,8 @@ class AgendaPageCtrl extends MasterCtrl {
       case "CS" : promo = 3; break;
     }
     for(int i=0; i<this.agData.teachList[promo].length; i++) {
-      if(this.agData.teachList[promo][i][0] == initiales) {
-        finalStr = this.agData.teachList[promo][i][2] + " " + this.agData.teachList[promo][i][1];
+      if(quoteToString(this.agData.teachList[promo][i][0]) == initiales) {
+        finalStr = quoteToString(this.agData.teachList[promo][i][2]) + " " + quoteToString(this.agData.teachList[promo][i][1]);
       }
     }
     return finalStr;
@@ -468,11 +488,14 @@ class AgendaPageCtrl extends MasterCtrl {
     String newstr = "";
     if(str.split("").length != 0) {
       if(str.split("")[0] == '"') {
-        newstr = str.split("\\")[0].split('"')[1] + str.split("\\")[1] +"\\"+ str.split("\\")[2] +"\\"+
-        str.split("\\")[3] +"\\"+ str.split("\\")[4] +"\\"+ str.split("\\")[5] + str.split("\\")[6]
-        + str.split("\\")[7] +"\\"+ str.split("\\")[8] +"\\"+ str.split("\\")[9] +"\\"+ str.split("\\")[10].split('"')[0];
+        if(str.split("")[1] != '~') {
+          newstr = str.split("\\")[0].split('"')[1] +"\\"+ str.split("\\")[1] + str.split("\\")[2] +"\\"+
+          str.split("\\")[3] +"\\"+ str.split("\\")[4] +"\\"+ str.split("\\")[5] + str.split("\\")[6]
+          + str.split("\\")[7] +"\\"+ str.split("\\")[8] + str.split("\\")[9] +"\\"+ str.split("\\")[10].split('"')[0];
+        }
       } else {
-        newstr = str;
+        if(str.split("")[0] != '~')
+          newstr = str;
       }
     }
     return newstr;

@@ -20,7 +20,7 @@ class AgendaData extends DataSave {
   //Colors
   Map<String, List<String>> colors;
 
-  Map<DateTime, String> notes;
+  Map<String, String> notes;
 
     //Picker
   //Promo choosen  
@@ -44,7 +44,7 @@ class AgendaData extends DataSave {
       this.teachList = new List<List<List<String>>>();
       this.groupList = new List<List<List<String>>>();
 
-      this.notes = new Map<DateTime, String>();
+      this.notes = new Map<String, String>();
 
       this.colors = new Map<String, List<String>>();
       colorInitializer();

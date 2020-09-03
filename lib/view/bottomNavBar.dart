@@ -12,6 +12,7 @@ import './webetudPage.dart';
 import './roomPage.dart';
 import './scorePage.dart';
 import './absencePage.dart';
+import './paramPage.dart';
 
 class BottomNavBarMain extends StatelessWidget {
 
@@ -46,8 +47,10 @@ class BottomNavBar extends State<_BottomNavBar> {
   RoomPageMain roomPage;
   ScorePageMain scorePage;
   AbsencePageMain absencePage;
+  ParamPageMain paramPage;
   List<Widget> pages;
   Widget currentPage;
+  Widget currentParamPage;
   DataSave dataPage = new DataSave.single();
 
     //Controller
@@ -91,9 +94,10 @@ class BottomNavBar extends State<_BottomNavBar> {
       this.roomPage = new RoomPageMain(this);
       this.scorePage = new ScorePageMain(this);
       this.absencePage = new AbsencePageMain(this);
+      this.paramPage = new ParamPageMain(this);
 
       currentPage = this.agendaPage;
-      pages = [this.agendaPage, this.webetudPage, this.roomPage, this.scorePage, this.absencePage];
+      pages = [this.agendaPage, this.webetudPage, this.roomPage, this.scorePage, this.absencePage, this.paramPage];
       _onItemTapped(0);
     });
   }
@@ -107,7 +111,7 @@ class BottomNavBar extends State<_BottomNavBar> {
   }
 
   //Update theme of all of pages
-  void updateAllThemes(Brightness theme) {
+  void updateAllThemes(Brightness theme, String page) {
     setState(() {
       this.dataPage.theme = theme;
       this.agendaPage.bottom.dataPage.theme = theme;
@@ -121,6 +125,29 @@ class BottomNavBar extends State<_BottomNavBar> {
       } else {
         this.colorsTheme = [Colors.green, Colors.orange, Colors.pink, Colors.blue, Colors.purple];
       }
+    });
+  }
+
+  //Switch to paramPage
+  void switchParam() {
+    setState(() {
+      this.currentParamPage = this.currentPage;
+      currentPage = pages[5];
+    });
+  }
+
+  //Switch back to page
+  void switchBack(String page) {
+    Widget sPage;
+    switch(page) {
+      case 'AgendaPageMain' : sPage = this.agendaPage; break;
+      case 'WebetudPageMain' : sPage = this.webetudPage; break;
+      case 'RoomPageMain' : sPage = this.roomPage; break;
+      case 'ScorePageMain' : sPage = this.scorePage; break;
+      case 'AbsencePageMain' : sPage = this.absencePage; break;
+    }
+    setState(() {
+      currentPage = sPage;
     });
   }
 
